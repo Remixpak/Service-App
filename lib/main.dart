@@ -5,10 +5,12 @@ import 'package:service_app/Pages/homePage.dart';
 import 'package:service_app/pages/login_register_page.dart';
 import 'package:provider/provider.dart';
 import 'package:service_app/providers/auth_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const LoginRegisterPage(),
+        home: const MyHomePage(title:   'Service App'),
       ),
     );
     /*return MaterialApp(
