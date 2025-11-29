@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import 'package:service_app/pages/homePage.dart';
+import 'package:service_app/providers/auth_provider.dart';
 
 class LoginRegisterPage extends StatefulWidget {
   const LoginRegisterPage({super.key});
@@ -32,7 +33,10 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-
+    if (auth.user != null) {
+      // Si ya está logueado, ir a HomePage
+      return const MyHomePage(title: 'Service App');
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("Autenticación"),

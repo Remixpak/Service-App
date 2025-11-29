@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:service_app/models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  User? user; // El usuario actual
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  User? user; //el usuario actual pero del firebase auth
+  AppUser? appUser; //el usuario de nuestra app con datos adicionales
   bool isLoading = false; // Para mostrar cargando en UI
 
   AuthProvider() {
@@ -17,6 +20,31 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ────────────────────────────────────────────────
+  // Cargar usuario desde Firestore o crearlo si no existe
+  // ────────────────────────────────────────────────
+  Future<void> loadOrCreateUser(User fbUser) async {
+    //con esta funcion creamos o cargamos el usuario de Firestore
+    final doc = _db.collection("users").doc(fbUser.uid);
+    final snapshot = await doc.get();
+
+    if (!snapshot.exists) {
+      // Crear usuario nuevo
+      appUser = AppUser(
+        id: fbUser.uid,
+        email: fbUser.email ?? "",
+        name: fbUser.displayName ?? "",
+        phoneNumber: fbUser.phoneNumber ?? "",
+        admin: false,
+      );
+
+      await doc.set(userToMap(appUser!));
+    } else {
+      // Cargar usuario existente
+      appUser = mapToUser(snapshot.data()!);
+    }
+  }
+
+  // ────────────────────────────────────────────────
   //                REGISTRO CON EMAIL
   // ────────────────────────────────────────────────
   Future<String?> registerWithEmail(String email, String password) async {
@@ -24,14 +52,19 @@ class AuthProvider extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      await _auth.createUserWithEmailAndPassword(
+      final credentials = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      return null; // Todo OK
+      final fbUser = credentials.user;
+      if (fbUser != null) {
+        await loadOrCreateUser(fbUser);
+      }
+
+      return null;
     } on FirebaseAuthException catch (e) {
-      return e.message; // Mensaje de error para mostrarlo en UI
+      return e.message;
     } finally {
       isLoading = false;
       notifyListeners();
@@ -46,7 +79,15 @@ class AuthProvider extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final credentials = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final fbUser = credentials.user;
+      if (fbUser != null) {
+        await loadOrCreateUser(fbUser);
+      }
 
       return null;
     } on FirebaseAuthException catch (e) {
@@ -67,19 +108,23 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       final GoogleSignIn googleSignIn = GoogleSignIn();
-
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return "Cancelado por el usuario";
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
-      await _auth.signInWithCredential(credential);
+      final result = await _auth.signInWithCredential(credential);
+
+      final fbUser = result.user;
+      if (fbUser != null) {
+        await loadOrCreateUser(fbUser);
+      }
 
       return null;
     } catch (e) {
@@ -88,6 +133,27 @@ class AuthProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ────────────────────────────────────────────────
+  // EDITAR USUARIO (Firestore)
+  // ────────────────────────────────────────────────
+  Future<void> updateUser({String? name, String? phoneNumber}) async {
+    if (appUser == null) return;
+
+    final updated = AppUser(
+      id: appUser!.id,
+      email: appUser!.email,
+      name: name ?? appUser!.name,
+      phoneNumber: phoneNumber ?? appUser!.phoneNumber,
+      admin: appUser!.admin,
+    );
+
+    appUser = updated;
+
+    await _db.collection("users").doc(updated.id).update(userToMap(updated));
+
+    notifyListeners();
   }
 
   // ────────────────────────────────────────────────
