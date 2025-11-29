@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/pages/consultarVoucher.dart';
 import 'package:service_app/pages/login_register_page.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import 'package:service_app/pages/voucherScreen.dart';
@@ -66,11 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // BOTÓN NORMAL
               ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Consulta enviada al centro.'),
-                    ),
-                  );
+                  to_consultarVoucher();
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -124,6 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const VoucherScreen()),
+    );
+  }
+
+  void to_consultarVoucher() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Consultarvoucher()),
     );
   }
 }

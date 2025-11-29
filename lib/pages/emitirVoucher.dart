@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 class EmitirVoucherScreen extends StatefulWidget {
   const EmitirVoucherScreen({super.key});
@@ -18,7 +17,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   final TextEditingController emisorController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
 
-  /// 🔥 ID generado automáticamente
+  /// 🔥 ID autogenerado por Firestore
   late final String idVoucher;
 
   DateTime fechaEmision = DateTime.now();
@@ -26,7 +25,10 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   @override
   void initState() {
     super.initState();
-    idVoucher = const Uuid().v4(); // Generar ID al iniciar la pantalla
+
+    /// Cuando entras a la pantalla ya generamos el ID (sin crear el documento)
+    final docRef = FirebaseFirestore.instance.collection("vouchers").doc();
+    idVoucher = docRef.id;
   }
 
   Future<void> guardarVoucher() async {
@@ -80,7 +82,6 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               ),
               const SizedBox(height: 20),
 
-              /// 🔥 Mostrar ID
               Text(
                 "ID del Voucher:",
                 style: TextStyle(

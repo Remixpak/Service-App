@@ -18,7 +18,7 @@ class VoucherScreen extends StatelessWidget {
             // Botón Emitir
             ElevatedButton(
               onPressed: () {
-                // Acción para emitir voucher
+                to_emitirVoucher(context);
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -39,7 +39,6 @@ class VoucherScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Acción para editar voucher
-                to_emitirVoucher(context);
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
