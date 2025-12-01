@@ -121,4 +121,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get haveAccount => '¿Ya tienes cuenta? Inicia Sesión';
+
+  @override
+  String get voucherManagement => 'Gestión de Voucher';
+
+  @override
+  String get editingVoucher => 'Editar Voucher';
+
+  @override
+  String get deleteVoucher => 'Eliminar Voucher';
 }

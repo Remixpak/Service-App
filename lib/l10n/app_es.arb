@@ -36,5 +36,8 @@
   "googleSignIn": "Iniciar sesión con Google",
   "googleRegistry": "Registrar con Google",
   "dontHaveAccount": "¿No tienes una cuenta? Registrate",
-  "haveAccount" : "¿Ya tienes cuenta? Inicia Sesión"
+  "haveAccount" : "¿Ya tienes cuenta? Inicia Sesión",
+  "voucherManagement" : "Gestión de Voucher",
+  "editingVoucher" : "Editar Voucher",
+  "deleteVoucher" : "Eliminar Voucher"
 }

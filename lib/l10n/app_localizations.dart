@@ -325,6 +325,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Ya tienes cuenta? Inicia Sesión'**
   String get haveAccount;
+
+  /// No description provided for @voucherManagement.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de Voucher'**
+  String get voucherManagement;
+
+  /// No description provided for @editingVoucher.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Voucher'**
+  String get editingVoucher;
+
+  /// No description provided for @deleteVoucher.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar Voucher'**
+  String get deleteVoucher;
 }
 
 class _AppLocalizationsDelegate

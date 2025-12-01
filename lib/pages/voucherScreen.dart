@@ -9,7 +9,7 @@ class VoucherScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gestión de Vouchers"),
+        title: Text(AppLocalizations.of(context)!.voucherManagement),
         backgroundColor: Colors.blueAccent,
       ),
       body: Center(
@@ -51,7 +51,7 @@ class VoucherScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              child: const Text("Editar Voucher"),
+              child: Text(AppLocalizations.of(context)!.editingVoucher),
             ),
 
             const SizedBox(height: 20),
@@ -71,7 +71,7 @@ class VoucherScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              child: const Text("Eliminar voucher"),
+              child: Text(AppLocalizations.of(context)!.deleteVoucher),
             ),
           ],
         ),

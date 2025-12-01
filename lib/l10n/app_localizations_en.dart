@@ -121,4 +121,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get haveAccount => 'Do you already have an account? SignIn';
+
+  @override
+  String get voucherManagement => 'Voucher management';
+
+  @override
+  String get editingVoucher => 'Edit Voucher';
+
+  @override
+  String get deleteVoucher => 'Delete Voucher';
 }
