@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/pages/homePage.dart';
 import 'package:service_app/providers/auth_provider.dart';
 
@@ -43,9 +44,9 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
         centerTitle: true,
         bottom: TabBar(
           controller: tabController,
-          tabs: const [
-            Tab(text: "Iniciar Sesión"),
-            Tab(text: "Registrarse"),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.signIn),
+            Tab(text: AppLocalizations.of(context)!.register),
           ],
         ),
       ),
@@ -101,7 +102,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
             style: elevatedButtonStyle(),
             child: auth.isLoading
                 ? const CircularProgressIndicator()
-                : const Text("Iniciar Sesión"),
+                : Text(AppLocalizations.of(context)!.signIn),
           ),
 
           const SizedBox(height: 15),
@@ -187,7 +188,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
             style: elevatedButtonStyle(),
             child: auth.isLoading
                 ? const CircularProgressIndicator()
-                : const Text("Registrarse"),
+                : Text(AppLocalizations.of(context)!.register),
           ),
 
           const SizedBox(height: 15),

@@ -1,0 +1,9 @@
+{
+    "settings": "Settings",
+    "close": "Close",
+    "query": "Query",
+    "querySent": "Query sent to the center",
+    "signIn" : "Sign in",
+    "register": "Register"
+    
+}

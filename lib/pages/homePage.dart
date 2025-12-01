@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/pages/login_register_page.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -28,20 +29,20 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
           actions: [
             IconButton(
-              tooltip: 'Ajustes',
+              tooltip: AppLocalizations.of(context)!.settings,
               icon: const Icon(Icons.settings),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Ajustes'),
+                    title: Text(AppLocalizations.of(context)!.settings),
                     content: const Text(
                       'Aquí irían las opciones de configuración.',
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cerrar'),
+                        child: Text(AppLocalizations.of(context)!.close),
                       ),
                     ],
                   ),
@@ -54,7 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ElevatedButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Consulta enviada al centro.')),
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.querySent)),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -67,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            child: const Text('consulta'),
+            child: Text(AppLocalizations.of(context)!.query),
           ),
         ),
       );

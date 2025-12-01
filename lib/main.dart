@@ -6,6 +6,8 @@ import 'package:service_app/pages/login_register_page.dart';
 import 'package:provider/provider.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,11 +25,21 @@ class MyApp extends StatelessWidget {
       providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
       child: MaterialApp(
         title: 'Service App',
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          Locale('en'), // English
+          Locale('es'), // Spanish
+        ],
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const MyHomePage(title:   'Service App'),
+        home: const MyHomePage(title: 'Service App'),
       ),
     );
     /*return MaterialApp(
