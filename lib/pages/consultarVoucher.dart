@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:service_app/l10n/app_localizations.dart';
+import 'package:service_app/services/connection_service.dart';
 import 'dart:io';
 import '../services/pdf_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -20,11 +21,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
   Map<String, dynamic>? voucherData;
   bool loading = false;
   String? errorMessage;
-
-  Future<bool> hasConnection() async {
-    final result = await Connectivity().checkConnectivity();
-    return result != ConnectivityResult.none;
-  }
+  late BuildContext scaffoldContext;
 
   //Buscar voucher en Firestore
   Future<void> buscarVoucher() async {
@@ -37,15 +34,11 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
       });
       return;
     }
-
-    final connected = await hasConnection();
-    if (!connected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.internetError),
-        ),
+    final online = await ConnectionService().checkOnline();
+    if (!online) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.internetError)),
       );
-      return;
     }
 
     setState(() {
@@ -83,6 +76,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
 
   @override
   Widget build(BuildContext context) {
+    scaffoldContext = context;
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.queryVoucher),

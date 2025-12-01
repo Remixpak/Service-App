@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:service_app/l10n/app_localizations.dart';
 import '../services/connection_service.dart';
 
@@ -19,8 +19,6 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController emisorController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
-
-  final ConnectionService _connectionService = ConnectionService();
 
   late final String idVoucher;
 
@@ -41,12 +39,15 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     final online = await ConnectionService().checkOnline();
 
     if (!online) {
-      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.internetError)),
+      );
+      /*if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.internetError)),
       );
-      return;
+      return;*/
     }
 
     final voucherData = {

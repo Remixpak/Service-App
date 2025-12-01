@@ -27,7 +27,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //tambien podria se usar Provider.of<AuthProvider>(context).user
       return const LoginRegisterPage();
     } else {
-      print("print usuario: ${auth..appUser?.email}");
+      print("print usuario: ${auth.appUser?.email}");
+
       print("admin: ${auth.appUser?.admin}");
       return Scaffold(
         appBar: AppBar(

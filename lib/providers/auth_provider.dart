@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:service_app/models/user.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:service_app/services/connection_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,26 +13,28 @@ class AuthProvider extends ChangeNotifier {
   bool isLoading = false; // Para mostrar cargando en UI
 
   AuthProvider() {
-    // Escucha automáticamente los cambios del usuario
-    _auth.authStateChanges().listen((User? user) {
-      this.user = user;
-      notifyListeners();
-    });
-  }
+    _auth.authStateChanges().listen((User? fbUser) async {
+      user = fbUser;
 
-  Future<bool> hasConnection() async {
-    var connectivity = await Connectivity().checkConnectivity();
-    return connectivity != ConnectivityResult.none;
+      if (fbUser != null) {
+        // cargar info del usuario desde Firestore
+        await loadOrCreateUser(fbUser);
+      } else {
+        appUser = null;
+      }
+
+      notifyListeners(); //despues de cargar appUser
+    });
   }
 
   // ────────────────────────────────────────────────
   // Cargar usuario desde Firestore o crearlo si no existe
   // ────────────────────────────────────────────────
   Future<String?> loadOrCreateUser(User fbUser) async {
-    // Verificar conexión ANTES de acceder a Firestore
-    final connected = await hasConnection();
-    if (!connected) {
-      return "No hay conexión a Internet. Intenta nuevamente.";
+    //verificar conexion
+    final online = await ConnectionService().checkOnline();
+    if (!online) {
+      return "No hay conexión a Internet";
     }
 
     try {
