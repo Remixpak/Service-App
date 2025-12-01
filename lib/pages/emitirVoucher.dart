@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import '../services/connection_service.dart';
 
 class EmitirVoucherScreen extends StatefulWidget {
   const EmitirVoucherScreen({super.key});
@@ -17,7 +19,8 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   final TextEditingController emisorController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
 
-  /// 🔥 ID autogenerado por Firestore
+  final ConnectionService _connectionService = ConnectionService();
+
   late final String idVoucher;
 
   DateTime fechaEmision = DateTime.now();
@@ -33,6 +36,17 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
   Future<void> guardarVoucher() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final online = await ConnectionService().checkOnline();
+
+    if (!online) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No hay conexión a Internet")),
+      );
+      return;
+    }
 
     final voucherData = {
       'id': idVoucher,
@@ -50,13 +64,16 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
           .doc(idVoucher)
           .set(voucherData);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Voucher guardado con éxito")),
-        );
-        Navigator.pop(context);
-      }
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Voucher guardado con éxito")),
+      );
+
+      Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Error al guardar: $e")));
@@ -166,7 +183,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               // Fecha de emisión
               Row(
                 children: [
-                  Text("Fecha: ${fechaEmision.toLocal()}".split('.')[0]),
+                  Text(
+                    "Fecha: ${fechaEmision.toLocal().toString().split('.')[0]}",
+                  ),
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {

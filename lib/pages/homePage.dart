@@ -26,8 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //tambien podria se usar Provider.of<AuthProvider>(context).user
       return const LoginRegisterPage();
     } else {
-      print("No user logged in");
-
+      print("print usuario: ${auth..appUser?.email}");
+      print("admin: ${auth.appUser?.admin}");
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,

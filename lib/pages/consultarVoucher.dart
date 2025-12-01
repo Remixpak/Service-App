@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../services/pdf_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class Consultarvoucher extends StatefulWidget {
   const Consultarvoucher({super.key});
@@ -19,6 +20,11 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
   bool loading = false;
   String? errorMessage;
 
+  Future<bool> hasConnection() async {
+    final result = await Connectivity().checkConnectivity();
+    return result != ConnectivityResult.none;
+  }
+
   //Buscar voucher en Firestore
   Future<void> buscarVoucher() async {
     final id = idController.text.trim();
@@ -28,6 +34,16 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
         errorMessage = "Debe ingresar un ID";
         voucherData = null;
       });
+      return;
+    }
+
+    final connected = await hasConnection();
+    if (!connected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No hay conexión a Internet. Intenta nuevamente."),
+        ),
+      );
       return;
     }
 
