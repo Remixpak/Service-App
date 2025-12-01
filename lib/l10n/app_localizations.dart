@@ -133,6 +133,198 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Registrarse'**
   String get register;
+
+  /// No description provided for @search.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar'**
+  String get search;
+
+  /// No description provided for @voucherData.
+  ///
+  /// In es, this message translates to:
+  /// **'📄 Datos del Voucher'**
+  String get voucherData;
+
+  /// No description provided for @voucherId.
+  ///
+  /// In es, this message translates to:
+  /// **'ID del Voucher'**
+  String get voucherId;
+
+  /// No description provided for @pdfSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'PDF guardado en Documentos'**
+  String get pdfSaved;
+
+  /// No description provided for @queryVoucher.
+  ///
+  /// In es, this message translates to:
+  /// **'Consultar Voucher'**
+  String get queryVoucher;
+
+  /// No description provided for @queryError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al consultar: '**
+  String get queryError;
+
+  /// No description provided for @idError.
+  ///
+  /// In es, this message translates to:
+  /// **'No existe un voucher con ese ID'**
+  String get idError;
+
+  /// No description provided for @internetError.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay conexión a Internet. Intenta nuevamente.'**
+  String get internetError;
+
+  /// No description provided for @enterId.
+  ///
+  /// In es, this message translates to:
+  /// **'Debe ingresar un ID'**
+  String get enterId;
+
+  /// No description provided for @voucherSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Voucher guardado con éxito'**
+  String get voucherSuccess;
+
+  /// No description provided for @saveError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar: '**
+  String get saveError;
+
+  /// No description provided for @issueVoucher.
+  ///
+  /// In es, this message translates to:
+  /// **'Emitir Voucher'**
+  String get issueVoucher;
+
+  /// No description provided for @clientName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre del Cliente'**
+  String get clientName;
+
+  /// No description provided for @enterName.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el nombre'**
+  String get enterName;
+
+  /// No description provided for @clientPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Télefono del Cliente'**
+  String get clientPhone;
+
+  /// No description provided for @enterPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese teléfono'**
+  String get enterPhone;
+
+  /// No description provided for @description.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get description;
+
+  /// No description provided for @enterDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar descripción'**
+  String get enterDescription;
+
+  /// No description provided for @issuer.
+  ///
+  /// In es, this message translates to:
+  /// **'Emisor (UID o nombre del admin)'**
+  String get issuer;
+
+  /// No description provided for @enterIssuer.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar emisor'**
+  String get enterIssuer;
+
+  /// No description provided for @state.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado (Ej: emitido, pendiente...)'**
+  String get state;
+
+  /// No description provided for @enterState.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar estado'**
+  String get enterState;
+
+  /// No description provided for @date.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha: '**
+  String get date;
+
+  /// No description provided for @changeDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar fecha'**
+  String get changeDate;
+
+  /// No description provided for @saveVoucher.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Voucher'**
+  String get saveVoucher;
+
+  /// No description provided for @mail.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo'**
+  String get mail;
+
+  /// No description provided for @password.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get password;
+
+  /// No description provided for @authentication.
+  ///
+  /// In es, this message translates to:
+  /// **'Autenticación'**
+  String get authentication;
+
+  /// No description provided for @googleSignIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión con Google'**
+  String get googleSignIn;
+
+  /// No description provided for @googleRegistry.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar con Google'**
+  String get googleRegistry;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No tienes una cuenta? Registrate'**
+  String get dontHaveAccount;
+
+  /// No description provided for @haveAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Ya tienes cuenta? Inicia Sesión'**
+  String get haveAccount;
 }
 
 class _AppLocalizationsDelegate

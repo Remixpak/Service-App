@@ -40,7 +40,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Autenticación"),
+        title: Text(AppLocalizations.of(context)!.authentication),
         centerTitle: true,
         bottom: TabBar(
           controller: tabController,
@@ -69,14 +69,15 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
           const SizedBox(height: 20),
 
           // CORREO
-          buildTextField(emailController, "Correo", Icons.email),
+          buildTextField(
+              emailController, AppLocalizations.of(context)!.mail, Icons.email),
 
           const SizedBox(height: 15),
 
           // CONTRASEÑA
           buildTextField(
             passController,
-            "Contraseña",
+            AppLocalizations.of(context)!.password,
             Icons.lock,
             isPassword: true,
           ),
@@ -120,7 +121,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     }
                   },
             icon: const Icon(Icons.login),
-            label: const Text("Iniciar con Google"),
+            label: Text(AppLocalizations.of(context)!.googleSignIn),
           ),
 
           const SizedBox(height: 30),
@@ -131,8 +132,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
               onTap: () {
                 tabController.animateTo(1);
               },
-              child: const Text(
-                "¿No tienes cuenta? Regístrate",
+              child: Text(
+                AppLocalizations.of(context)!.dontHaveAccount,
                 style: TextStyle(
                   color: Colors.blue,
                   decoration: TextDecoration.underline,
@@ -157,13 +158,14 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
         children: [
           const SizedBox(height: 20),
 
-          buildTextField(emailController, "Correo", Icons.email),
+          buildTextField(
+              emailController, AppLocalizations.of(context)!.mail, Icons.email),
 
           const SizedBox(height: 15),
 
           buildTextField(
             passController,
-            "Contraseña",
+            AppLocalizations.of(context)!.password,
             Icons.lock,
             isPassword: true,
           ),
@@ -206,7 +208,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     }
                   },
             icon: const Icon(Icons.person_add),
-            label: const Text("Registrarse con Google"),
+            label: Text(AppLocalizations.of(context)!.googleRegistry),
           ),
 
           const SizedBox(height: 30),
@@ -216,8 +218,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
               onTap: () {
                 tabController.animateTo(0);
               },
-              child: const Text(
-                "¿Ya tienes cuenta? Inicia Sesión",
+              child: Text(
+                AppLocalizations.of(context)!.haveAccount,
                 style: TextStyle(
                   color: Colors.blue,
                   decoration: TextDecoration.underline,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:service_app/models/user.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,28 +20,42 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
+  Future<bool> hasConnection() async {
+    var connectivity = await Connectivity().checkConnectivity();
+    return connectivity != ConnectivityResult.none;
+  }
+
   // ────────────────────────────────────────────────
   // Cargar usuario desde Firestore o crearlo si no existe
   // ────────────────────────────────────────────────
-  Future<void> loadOrCreateUser(User fbUser) async {
-    //con esta funcion creamos o cargamos el usuario de Firestore
-    final doc = _db.collection("users").doc(fbUser.uid);
-    final snapshot = await doc.get();
+  Future<String?> loadOrCreateUser(User fbUser) async {
+    // Verificar conexión ANTES de acceder a Firestore
+    final connected = await hasConnection();
+    if (!connected) {
+      return "No hay conexión a Internet. Intenta nuevamente.";
+    }
 
-    if (!snapshot.exists) {
-      // Crear usuario nuevo
-      appUser = AppUser(
-        id: fbUser.uid,
-        email: fbUser.email ?? "",
-        name: fbUser.displayName ?? "",
-        phoneNumber: fbUser.phoneNumber ?? "",
-        admin: false,
-      );
+    try {
+      final doc = _db.collection("users").doc(fbUser.uid);
+      final snapshot = await doc.get();
 
-      await doc.set(userToMap(appUser!));
-    } else {
-      // Cargar usuario existente
-      appUser = mapToUser(snapshot.data()!);
+      if (!snapshot.exists) {
+        appUser = AppUser(
+          id: fbUser.uid,
+          email: fbUser.email ?? "",
+          name: fbUser.displayName ?? "",
+          phoneNumber: fbUser.phoneNumber ?? "",
+          admin: false,
+        );
+
+        await doc.set(userToMap(appUser!));
+      } else {
+        appUser = mapToUser(snapshot.data()!);
+      }
+
+      return null; // success
+    } catch (e) {
+      return "Error conectando a Firestore: $e";
     }
   }
 
