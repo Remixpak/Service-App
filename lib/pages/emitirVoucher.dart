@@ -5,6 +5,11 @@ import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/models/voucher.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import '../services/connection_service.dart';
+import '../services/pdf_service.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../services/share_service.dart';
 
 class EmitirVoucherScreen extends StatefulWidget {
   const EmitirVoucherScreen({super.key});
@@ -127,6 +132,49 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
+  Future<void> enviarVoucher() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final phone = telefonoController.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ingrese un teléfono válido")),
+      );
+      return;
+    }
+
+    // Crear mapa con los datos EXACTAMENTE igual a como los guardarás en Firestore
+    final data = {
+      "id": idVoucher,
+      "numeroOrden": numeroOrdenController.text.trim(),
+      "nombreCliente": nombreController.text.trim(),
+      "telefonoCliente": telefonoController.text.trim(),
+      "description": descripcionController.text.trim(),
+      "emisor": Provider.of<AuthProvider>(context, listen: false).appUser?.name,
+      "fechaEmision": fechaEmision,
+      "fechaEntrega": fechaEntrega ?? fechaEmision,
+      "modelo": modeloSeleccionado,
+      "servicio": servicioSeleccionado,
+      "total": int.tryParse(totalController.text.trim()) ?? 0,
+    };
+
+    try {
+      // Generar el PDF como bytes
+      final pdfBytes = await PdfService.generateVoucherPdf(data);
+
+      // Guardar el PDF temporalmente
+      final filePath =
+          await ShareService.savePdfTemp(pdfBytes, "voucher_$idVoucher.pdf");
+
+      // Compartir el PDF
+      await ShareService.sharePdf(filePath);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al generar o enviar PDF: $e")),
+      );
     }
   }
 
@@ -367,6 +415,16 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                   textStyle: const TextStyle(fontSize: 18),
                 ),
                 child: Text(AppLocalizations.of(context)!.saveVoucher),
+              ),
+              ElevatedButton.icon(
+                onPressed: enviarVoucher,
+                icon: const Icon(Icons.share),
+                label: const Text("Enviar al cliente"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  backgroundColor: Colors.green,
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),
