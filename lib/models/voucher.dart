@@ -2,44 +2,78 @@ import 'package:flutter/material.dart';
 
 class Voucher {
   final String id;
+  final String numeroOrden;
   final String nombreCliente;
-  final String telefonoCiente;
+  final String telefonoCliente;
   final String description;
-  final double emisor;
-  final DateTime fechaEmicion;
-  final String estado;
+  final String emisor;
+  final DateTime fechaEmision;
+  final DateTime fechaEntrega;
+  final String modelo;
+  final String servicio;
+  final int total;
 
   Voucher({
     required this.id,
+    required this.numeroOrden,
     required this.nombreCliente,
-    required this.telefonoCiente,
+    required this.telefonoCliente,
     required this.description,
     required this.emisor,
-    required this.fechaEmicion,
-    required this.estado,
+    required this.fechaEmision,
+    required this.fechaEntrega,
+    required this.modelo,
+    required this.servicio,
+    required this.total,
   });
 
-  Map<String, dynamic> toMap(Voucher voucher) {
+  // ------- Convertir a mapa para Firestore -------
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'numeroOrden': numeroOrden,
       'nombreCliente': nombreCliente,
-      'telefonoCiente': telefonoCiente,
+      'telefonoCliente': telefonoCliente,
       'description': description,
       'emisor': emisor,
-      'fechaEmicion': fechaEmicion.toIso8601String(),
-      'estado': estado,
+      'fechaEmision': fechaEmision.toIso8601String(),
+      'fechaEntrega': fechaEntrega.toIso8601String(),
+      'modelo': modelo,
+      'servicio': servicio,
+      'total': total,
     };
   }
 
-  Voucher toVoucher(Map<String, dynamic> map) {
+  // ------- Crear Voucher desde Firestore -------
+  factory Voucher.fromMap(Map<String, dynamic> map) {
     return Voucher(
-      id: map['id'],
-      nombreCliente: map['nombreCliente'],
-      telefonoCiente: map['telefonoCiente'],
-      description: map['description'],
-      emisor: map['emisor'],
-      fechaEmicion: DateTime.parse(map['fechaEmicion']),
-      estado: map['estado'],
+      id: map['id'] ?? '',
+      numeroOrden: map['numeroOrden'] ?? '',
+      nombreCliente: map['nombreCliente'] ?? '',
+      telefonoCliente: map['telefonoCliente'] ?? '',
+      description: map['description'] ?? '',
+      emisor: map['emisor'] ?? '',
+      fechaEmision: DateTime.parse(map['fechaEmision']),
+      fechaEntrega: DateTime.parse(map['fechaEntrega']),
+      modelo: map['modelo'] ?? 'Otro',
+      servicio: map['servicio'] ?? '',
+      total: map['total'] ?? 0,
     );
   }
+
+  // ------- Listas de selección -------
+  static List<String> modelosDisponibles = [
+    'Ps3',
+    'Ps4',
+    'Ps5',
+    'Nintendo Switch',
+    'Nintendo Switch 2',
+    '3DS/2DS',
+    'Otro',
+  ];
+
+  static List<String> serviciosDisponibles = [
+    'Reserva',
+    'Reparación',
+  ];
 }
