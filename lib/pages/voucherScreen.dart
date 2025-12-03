@@ -1,7 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:service_app/pages/EditVoucherScreen.dart';
 import 'package:service_app/pages/emitirVoucher.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:service_app/models/voucher.dart';
+import 'package:service_app/providers/App_Data.dart';
+import 'package:provider/provider.dart';
 
 class VoucherScreen extends StatefulWidget {
   const VoucherScreen({super.key});
@@ -15,11 +19,21 @@ class _VoucherScreenState extends State<VoucherScreen> {
   String? expandedId;
 
   /// Mensajes por defecto
-  String mensajeReparacion(String nombre, String orden) =>
-      "Hola $nombre 👋, tu reparación con orden $orden ya está disponible. ¡Gracias por preferirnos!";
+  String mensajeReparacion(BuildContext context, String nombre, String orden) {
+    final appData = Provider.of<AppData>(context, listen: false);
 
-  String mensajeReserva(String nombre, String orden) =>
-      "Hola $nombre 👋, tu reserva con número $orden está confirmada. ¡Gracias por preferirnos!";
+    return appData.mensajeReparacion
+        .replaceAll("{NOMBRE}", nombre)
+        .replaceAll("{ORDEN}", orden);
+  }
+
+  String mensajeReserva(BuildContext context, String nombre, String orden) {
+    final appData = Provider.of<AppData>(context, listen: false);
+
+    return appData.mensajeReserva
+        .replaceAll("{NOMBRE}", nombre)
+        .replaceAll("{ORDEN}", orden);
+  }
 
   /// Abrir WhatsApp con mensaje
   Future<void> enviarMensajeWhatsapp(String telefono, String mensaje) async {
@@ -95,6 +109,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
               final bool expanded = expandedId == id;
 
+              final voucher = Voucher.fromMap({
+                ...data,
+                "id": id,
+              });
+
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(bottom: 12),
@@ -157,19 +176,27 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                       color: Colors.green, size: 30),
                                   onPressed: () {
                                     final mensaje = servicio == "Reparación"
-                                        ? mensajeReparacion(cliente, numero)
-                                        : mensajeReserva(cliente, numero);
+                                        ? mensajeReparacion(
+                                            context, cliente, numero)
+                                        : mensajeReserva(
+                                            context, cliente, numero);
 
                                     enviarMensajeWhatsapp(telefono, mensaje);
                                   },
                                 ),
 
-                                /// Editar (por ahora vacío)
+                                /// EDITAR
                                 IconButton(
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blue, size: 30),
                                   onPressed: () {
-                                    // implementar después
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            EditVoucherScreen(voucher: voucher),
+                                      ),
+                                    );
                                   },
                                 ),
 

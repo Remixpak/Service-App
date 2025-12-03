@@ -6,9 +6,6 @@ import 'package:service_app/models/voucher.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import '../services/connection_service.dart';
 import '../services/pdf_service.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import '../services/share_service.dart';
 
 class EmitirVoucherScreen extends StatefulWidget {
