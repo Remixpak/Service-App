@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'dart:io';
 import '../services/pdf_service.dart';
 import '../services/connection_service.dart';
@@ -24,11 +25,12 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
 
   /// Buscar voucher por número de orden
   Future<void> buscarVoucher() async {
+    String searchError = AppLocalizations.of(context)!.searchError;
     final numeroOrden = ordenController.text.trim();
 
     if (numeroOrden.isEmpty) {
       setState(() {
-        errorMessage = "Ingrese el número de orden";
+        errorMessage = AppLocalizations.of(context)!.enterOrderNumber;
         voucher = null;
       });
       return;
@@ -37,7 +39,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
     final online = await ConnectionService().checkOnline();
     if (!online) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No hay conexión a Internet")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.internetError)),
       );
       return;
     }
@@ -56,7 +58,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
       if (query.docs.isEmpty) {
         setState(() {
           voucher = null;
-          errorMessage = "No existe un voucher con ese número de orden";
+          errorMessage = AppLocalizations.of(context)!.orderError;
         });
       } else {
         setState(() {
@@ -65,7 +67,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = "Error al buscar: $e";
+        errorMessage = "$searchError $e";
         voucher = null;
       });
     }
@@ -86,7 +88,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Consultar Voucher"),
+        title: Text(AppLocalizations.of(context)!.queryVoucher),
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
@@ -107,7 +109,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
               await file.writeAsBytes(pdfBytes);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("PDF guardado correctamente")),
+                SnackBar(content: Text(AppLocalizations.of(context)!.pdfSaved)),
               );
             },
           ),
@@ -120,7 +122,7 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
             TextField(
               controller: ordenController,
               decoration: InputDecoration(
-                labelText: "Número de orden",
+                labelText: AppLocalizations.of(context)!.orderNumber,
                 border: OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
@@ -129,40 +131,33 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
               ),
               keyboardType: TextInputType.number,
             ),
-
             const SizedBox(height: 20),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: buscarVoucher,
-                child: const Text("Buscar"),
+                child: Text(AppLocalizations.of(context)!.search),
               ),
             ),
-
             const SizedBox(height: 20),
-
             if (loading) const CircularProgressIndicator(),
-
             if (errorMessage != null)
               Text(
                 errorMessage!,
                 style: const TextStyle(color: Colors.red, fontSize: 16),
               ),
-
             if (voucher != null)
               Expanded(
                 child: ListView(
                   children: [
-                    const Text(
-                      "Datos del voucher",
+                    Text(
+                      AppLocalizations.of(context)!.voucherData,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 10),
-
                     buildItem("ID", voucher!.id),
                     buildItem("Número de orden", voucher!.numeroOrden),
                     buildItem("Cliente", voucher!.nombreCliente),

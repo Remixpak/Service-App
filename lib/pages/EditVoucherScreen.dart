@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/models/voucher.dart';
 
 class EditVoucherScreen extends StatefulWidget {
@@ -52,6 +53,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
   }
 
   Future<void> guardarCambios() async {
+    String saveError = AppLocalizations.of(context)!.saveError;
     setState(() => saving = true);
 
     try {
@@ -75,13 +77,13 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Voucher actualizado correctamente")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.editSucces)),
       );
 
       Navigator.pop(context); // volver atrás
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al guardar: $e")),
+        SnackBar(content: Text("$saveError $e")),
       );
     }
 
@@ -124,9 +126,11 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String issueDate = AppLocalizations.of(context)!.issueDate;
+    String deliveryDate = AppLocalizations.of(context)!.deliveryDate;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Editar Voucher"),
+        title: Text(AppLocalizations.of(context)!.editingVoucher),
       ),
       body: saving
           ? const Center(child: CircularProgressIndicator())
@@ -134,8 +138,8 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
               padding: const EdgeInsets.all(16),
               child: ListView(
                 children: [
-                  const Text(
-                    "Editar datos",
+                  Text(
+                    AppLocalizations.of(context)!.editData,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -158,8 +162,8 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
 
                   // Modelo
                   DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: "Modelo",
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.model,
                       border: OutlineInputBorder(),
                     ),
                     value: modeloSeleccionado,
@@ -178,8 +182,8 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
 
                   // Servicio
                   DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: "Servicio",
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.service,
                       border: OutlineInputBorder(),
                     ),
                     value: servicioSeleccionado,
@@ -199,7 +203,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
                   // Fecha emisión
                   ListTile(
                     title: Text(
-                        "Fecha de emisión: ${fechaEmision.day}/${fechaEmision.month}/${fechaEmision.year}"),
+                        "$issueDate ${fechaEmision.day}/${fechaEmision.month}/${fechaEmision.year}"),
                     trailing: const Icon(Icons.calendar_month),
                     onTap: () => seleccionarFecha(true),
                   ),
@@ -208,7 +212,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
                   // Fecha entrega
                   ListTile(
                     title: Text(
-                        "Fecha de entrega: ${fechaEntrega.day}/${fechaEntrega.month}/${fechaEntrega.year}"),
+                        "$deliveryDate ${fechaEntrega.day}/${fechaEntrega.month}/${fechaEntrega.year}"),
                     trailing: const Icon(Icons.calendar_month),
                     onTap: () => seleccionarFecha(false),
                   ),
@@ -220,7 +224,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
                     child: ElevatedButton.icon(
                       onPressed: guardarCambios,
                       icon: const Icon(Icons.save),
-                      label: const Text("Guardar cambios"),
+                      label: Text(AppLocalizations.of(context)!.saveChanges),
                     ),
                   ),
                 ],

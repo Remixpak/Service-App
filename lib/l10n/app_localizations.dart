@@ -343,6 +343,228 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar Voucher'**
   String get deleteVoucher;
+
+  /// No description provided for @order.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden: '**
+  String get order;
+
+  /// No description provided for @client.
+  ///
+  /// In es, this message translates to:
+  /// **'Cliente: '**
+  String get client;
+
+  /// No description provided for @model.
+  ///
+  /// In es, this message translates to:
+  /// **'Modelo: '**
+  String get model;
+
+  /// No description provided for @service.
+  ///
+  /// In es, this message translates to:
+  /// **'Servicio: '**
+  String get service;
+
+  /// No description provided for @searchError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al buscar: '**
+  String get searchError;
+
+  /// No description provided for @orderNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de orden'**
+  String get orderNumber;
+
+  /// No description provided for @noVouchersRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay vouchers registrados'**
+  String get noVouchersRegistered;
+
+  /// No description provided for @enterOrderNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el número de orden'**
+  String get enterOrderNumber;
+
+  /// No description provided for @orderError.
+  ///
+  /// In es, this message translates to:
+  /// **'No existe un voucher con ese número de orden'**
+  String get orderError;
+
+  /// No description provided for @whatsappError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir WhatsApp'**
+  String get whatsappError;
+
+  /// No description provided for @issueDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de emisión: '**
+  String get issueDate;
+
+  /// No description provided for @deliveryDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de entrega: '**
+  String get deliveryDate;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar cambios'**
+  String get saveChanges;
+
+  /// No description provided for @editData.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar datos'**
+  String get editData;
+
+  /// No description provided for @editSucces.
+  ///
+  /// In es, this message translates to:
+  /// **'Voucher actualizado correctamente'**
+  String get editSucces;
+
+  /// No description provided for @pdfError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al generar o enviar PDF: '**
+  String get pdfError;
+
+  /// No description provided for @notDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'no definida'**
+  String get notDefined;
+
+  /// No description provided for @justNumbers.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese solo números'**
+  String get justNumbers;
+
+  /// No description provided for @fourDigits.
+  ///
+  /// In es, this message translates to:
+  /// **'El número debe tener solo 4 dígitos'**
+  String get fourDigits;
+
+  /// No description provided for @enterTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese el total'**
+  String get enterTotal;
+
+  /// No description provided for @totalError.
+  ///
+  /// In es, this message translates to:
+  /// **'El total debe ser positivo'**
+  String get totalError;
+
+  /// No description provided for @validTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese un número válido'**
+  String get validTotal;
+
+  /// No description provided for @selectDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Select delivery'**
+  String get selectDelivery;
+
+  /// No description provided for @clean.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar'**
+  String get clean;
+
+  /// No description provided for @send.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar al cliente'**
+  String get send;
+
+  /// No description provided for @changeIssueDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar fecha de emisión'**
+  String get changeIssueDate;
+
+  /// No description provided for @validPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingrese un número de télefono válido'**
+  String get validPhone;
+
+  /// No description provided for @voucherExist.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya existe un voucher con este número de orden'**
+  String get voucherExist;
+
+  /// No description provided for @noUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay usuario autenticado'**
+  String get noUsers;
+
+  /// No description provided for @noValidTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'El total debe ser un número válido'**
+  String get noValidTotal;
+
+  /// No description provided for @repairMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje de Reparación'**
+  String get repairMessage;
+
+  /// No description provided for @deliveryRepairMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje enviado al entregar una reparación'**
+  String get deliveryRepairMessage;
+
+  /// No description provided for @reserveMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje de Reserva'**
+  String get reserveMessage;
+
+  /// No description provided for @confirmReserve.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensaje enviado al confirmar una reserva'**
+  String get confirmReserve;
+
+  /// No description provided for @currentUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario actual: '**
+  String get currentUser;
+
+  /// No description provided for @closedAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión cerrada correctamente'**
+  String get closedAccount;
+
+  /// No description provided for @closeSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get closeSession;
 }
 
 class _AppLocalizationsDelegate

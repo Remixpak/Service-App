@@ -52,6 +52,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   }
 
   Future<void> guardarVoucher() async {
+    String noUser = AppLocalizations.of(context)!.noUsers;
     if (!_formKey.currentState!.validate()) return;
 
     final online = await ConnectionService().checkOnline();
@@ -66,7 +67,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
     if (auth.appUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error: No hay usuario autenticado")),
+        SnackBar(content: Text("Error: $noUser")),
       );
       return;
     }
@@ -77,8 +78,8 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     final numeroOrden = numeroOrdenController.text.trim();
     if (await existeNumeroOrden(numeroOrden)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ya existe un voucher con este número de orden"),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.voucherExist),
         ),
       );
       return;
@@ -89,7 +90,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     final int? totalParsed = int.tryParse(totalText);
     if (totalParsed == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("El total debe ser un número válido")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.validTotal)),
       );
       return;
     }
@@ -134,11 +135,11 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
   Future<void> enviarVoucher() async {
     if (!_formKey.currentState!.validate()) return;
-
+    String pdfError = AppLocalizations.of(context)!.pdfError;
     final phone = telefonoController.text.trim();
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Ingrese un teléfono válido")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.validPhone)),
       );
       return;
     }
@@ -170,7 +171,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       await ShareService.sharePdf(filePath);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al generar o enviar PDF: $e")),
+        SnackBar(content: Text("$pdfError $e")),
       );
     }
   }
@@ -178,7 +179,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   @override
   Widget build(BuildContext context) {
     String date = AppLocalizations.of(context)!.date;
-
+    String clientName = AppLocalizations.of(context)!.clientName;
+    String deliveryDate = AppLocalizations.of(context)!.deliveryDate;
+    String notDefined = AppLocalizations.of(context)!.notDefined;
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.issueVoucher),
@@ -217,7 +220,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               TextFormField(
                 controller: numeroOrdenController,
                 decoration: InputDecoration(
-                  labelText: "Número de orden",
+                  labelText: AppLocalizations.of(context)!.orderNumber,
                   labelStyle: TextStyle(fontFamily: "Roboto"),
                   errorStyle: TextStyle(fontFamily: "Roboto"),
                   border: OutlineInputBorder(),
@@ -227,13 +230,13 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                 maxLength: 4,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Ingrese el número de orden";
+                    return AppLocalizations.of(context)!.enterOrderNumber;
                   }
                   if (value.length != 4) {
-                    return "El número debe tener 4 dígitos";
+                    return AppLocalizations.of(context)!.fourDigits;
                   }
                   if (!RegExp(r'^[0-9]{4}$').hasMatch(value)) {
-                    return "Ingrese solo números";
+                    return AppLocalizations.of(context)!.justNumbers;
                   }
                   return null;
                 },
@@ -244,25 +247,25 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               /// Nombre
               TextFormField(
                 controller: nombreController,
-                decoration: const InputDecoration(
-                  labelText: "Nombre cliente",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.clientName,
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Ingrese el nombre" : null,
+                validator: (value) => value!.isEmpty ? clientName : null,
               ),
               const SizedBox(height: 15),
 
               /// Teléfono
               TextFormField(
                 controller: telefonoController,
-                decoration: const InputDecoration(
-                  labelText: "Teléfono cliente",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.clientPhone,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
-                validator: (value) =>
-                    value!.isEmpty ? "Ingrese el teléfono" : null,
+                validator: (value) => value!.isEmpty
+                    ? AppLocalizations.of(context)!.enterPhone
+                    : null,
               ),
               const SizedBox(height: 15),
 
@@ -270,19 +273,20 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               TextFormField(
                 controller: descripcionController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: "Descripción",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.description,
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Ingrese la descripción" : null,
+                validator: (value) => value!.isEmpty
+                    ? AppLocalizations.of(context)!.enterDescription
+                    : null,
               ),
               const SizedBox(height: 20),
 
               /// MODELO (Dropdown)
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: "Modelo",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.model,
                   border: OutlineInputBorder(),
                 ),
                 value: modeloSeleccionado,
@@ -297,8 +301,8 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
               /// SERVICIO (Dropdown)
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: "Servicio",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.service,
                   border: OutlineInputBorder(),
                 ),
                 value: servicioSeleccionado,
@@ -321,11 +325,13 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Ingrese el total";
+                    return AppLocalizations.of(context)!.enterTotal;
                   }
                   final parsed = int.tryParse(value);
-                  if (parsed == null) return "Ingrese un número válido";
-                  if (parsed < 0) return "El total no puede ser negativo";
+                  if (parsed == null)
+                    return AppLocalizations.of(context)!.validTotal;
+                  if (parsed < 0)
+                    return AppLocalizations.of(context)!.totalError;
                   return null;
                 },
               ),
@@ -353,7 +359,8 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                               setState(() => fechaEmision = picked);
                             }
                           },
-                          child: Text("Cambiar fecha emisión"),
+                          child: Text(
+                              AppLocalizations.of(context)!.changeIssueDate),
                         ),
                       ],
                     ),
@@ -367,8 +374,8 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(fechaEntrega == null
-                            ? "Fecha entrega: (no definida)"
-                            : "Fecha entrega: ${fechaEntrega!.toLocal()}"
+                            ? "$deliveryDate ($notDefined)"
+                            : "$deliveryDate ${fechaEntrega!.toLocal()}"
                                 .split('.')[0]),
                         const SizedBox(height: 6),
                         Row(
@@ -385,14 +392,15 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                                   setState(() => fechaEntrega = picked);
                                 }
                               },
-                              child: const Text("Seleccionar entrega"),
+                              child: Text(
+                                  AppLocalizations.of(context)!.selectDelivery),
                             ),
                             const SizedBox(width: 8),
                             TextButton(
                               onPressed: () {
                                 setState(() => fechaEntrega = null);
                               },
-                              child: const Text("Limpiar"),
+                              child: Text(AppLocalizations.of(context)!.clean),
                             ),
                           ],
                         ),
@@ -416,7 +424,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               ElevatedButton.icon(
                 onPressed: enviarVoucher,
                 icon: const Icon(Icons.share),
-                label: const Text("Enviar al cliente"),
+                label: Text(AppLocalizations.of(context)!.send),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   backgroundColor: Colors.green,

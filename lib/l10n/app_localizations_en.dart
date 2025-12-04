@@ -130,4 +130,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteVoucher => 'Delete Voucher';
+
+  @override
+  String get order => 'Order: ';
+
+  @override
+  String get client => 'Client: ';
+
+  @override
+  String get model => 'Model: ';
+
+  @override
+  String get service => 'Service: ';
+
+  @override
+  String get searchError => 'Search error: ';
+
+  @override
+  String get orderNumber => 'Número de orden';
+
+  @override
+  String get noVouchersRegistered => 'there are no vouchers registered';
+
+  @override
+  String get enterOrderNumber => 'Enter order number';
+
+  @override
+  String get orderError => 'There is no voucher with that order number';
+
+  @override
+  String get whatsappError => 'WhatsApp could not be opened';
+
+  @override
+  String get issueDate => 'Issue date: ';
+
+  @override
+  String get deliveryDate => 'Delivery date: ';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get editData => 'Edit data';
+
+  @override
+  String get editSucces => 'Voucher updated successfully';
+
+  @override
+  String get pdfError => 'Error generating or sending PDF: ';
+
+  @override
+  String get notDefined => 'not defined';
+
+  @override
+  String get justNumbers => 'Enter just numbers';
+
+  @override
+  String get fourDigits => 'The number must have just 4 digits';
+
+  @override
+  String get enterTotal => 'Enter the total';
+
+  @override
+  String get totalError => 'The total must be positive';
+
+  @override
+  String get validTotal => 'Enter a valid number';
+
+  @override
+  String get selectDelivery => 'Select delivery';
+
+  @override
+  String get clean => 'Clean';
+
+  @override
+  String get send => 'Send to client';
+
+  @override
+  String get changeIssueDate => 'Change issue date';
+
+  @override
+  String get validPhone => 'Enter a valid phone number';
+
+  @override
+  String get voucherExist =>
+      'There is already a Voucher with that order number';
+
+  @override
+  String get noUsers => 'There is no authenticated user';
+
+  @override
+  String get noValidTotal => 'The total must be a valid number';
+
+  @override
+  String get repairMessage => 'Repair message';
+
+  @override
+  String get deliveryRepairMessage => 'Message sent upon delivery of a repair';
+
+  @override
+  String get reserveMessage => 'Reserve message';
+
+  @override
+  String get confirmReserve => 'Message sent upon confirm a reserve';
+
+  @override
+  String get currentUser => 'Current User: ';
+
+  @override
+  String get closedAccount => 'Session successfully closed';
+
+  @override
+  String get closeSession => 'Log Out';
 }

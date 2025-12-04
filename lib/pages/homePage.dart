@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Center(
           child: Text(
-            'No hay conexión a Internet',
+            AppLocalizations.of(context)!.internetError,
             style: const TextStyle(fontSize: 18),
           ),
         ),

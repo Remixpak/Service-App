@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/pages/login_register_page.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import 'package:service_app/providers/App_Data.dart';
@@ -35,7 +36,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final appData = Provider.of<AppData>(context);
-
+    String sign = AppLocalizations.of(context)!.signIn;
+    String register = AppLocalizations.of(context)!.register;
     // Esperar a que AppData cargue desde SharedPreferences
     if (!appData.loaded) {
       return const Scaffold(
@@ -49,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Configuración"),
+        title: Text(AppLocalizations.of(context)!.settings),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -61,8 +63,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 //───────────────────────────────────────────────
                 //   CAMPO: MENSAJE DE REPARACIÓN
                 //───────────────────────────────────────────────
-                const Text(
-                  "Mensaje de Reparación",
+                Text(
+                  AppLocalizations.of(context)!.repairMessage,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -71,7 +73,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    hintText: "Mensaje enviado al entregar una reparación",
+                    hintText:
+                        AppLocalizations.of(context)!.deliveryRepairMessage,
                   ),
                   onChanged: (value) {
                     appData.setMensajeReparacion(value);
@@ -83,8 +86,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 //───────────────────────────────────────────────
                 //   CAMPO: MENSAJE DE RESERVA
                 //───────────────────────────────────────────────
-                const Text(
-                  "Mensaje de Reserva",
+                Text(
+                  AppLocalizations.of(context)!.reserveMessage,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -93,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    hintText: "Mensaje enviado al confirmar una reserva",
+                    hintText: AppLocalizations.of(context)!.confirmReserve,
                   ),
                   onChanged: (value) {
                     appData.setMensajeReserva(value);
@@ -108,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (auth.appUser != null) ...[
                   const SizedBox(height: 10),
                   Text(
-                    "Usuario actual:",
+                    AppLocalizations.of(context)!.currentUser,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -129,14 +132,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Sesión cerrada correctamente")),
+                          SnackBar(
+                              content: Text(
+                                  AppLocalizations.of(context)!.closedAccount)),
                         );
                         Navigator.pop(context);
                       }
                     },
-                    child: const Text(
-                      "Cerrar sesión",
+                    child: Text(
+                      AppLocalizations.of(context)!.closeSession,
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
@@ -163,8 +167,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             builder: (_) => const LoginRegisterPage()),
                       );
                     },
-                    child: const Text(
-                      "Iniciar sesión / Registrarse",
+                    child: Text(
+                      "$sign / $register",
                       style: TextStyle(fontSize: 18),
                     ),
                   ),

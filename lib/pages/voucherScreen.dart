@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/pages/EditVoucherScreen.dart';
 import 'package:service_app/pages/emitirVoucher.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,13 +46,17 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No se pudo abrir WhatsApp")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.whatsappError)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String order = AppLocalizations.of(context)!.order;
+    String client = AppLocalizations.of(context)!.client;
+    String model = AppLocalizations.of(context)!.model;
+    String service = AppLocalizations.of(context)!.service;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Vouchers"),
@@ -59,7 +64,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text("Emitir Voucher"),
+        label: Text(AppLocalizations.of(context)!.issueVoucher),
         onPressed: () {
           Navigator.push(
             context,
@@ -83,9 +88,9 @@ class _VoucherScreenState extends State<VoucherScreen> {
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                "No hay vouchers registrados",
+                AppLocalizations.of(context)!.noVouchersRegistered,
                 style: TextStyle(fontSize: 18),
               ),
             );
@@ -139,7 +144,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Orden: $numero",
+                                "$order $numero",
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -156,11 +161,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
                           const SizedBox(height: 4),
 
-                          Text("Cliente: $cliente",
+                          Text("$client $cliente",
                               style: const TextStyle(fontSize: 16)),
-                          Text("Modelo: $modelo",
+                          Text("$model $modelo",
                               style: const TextStyle(fontSize: 16)),
-                          Text("Servicio: $servicio",
+                          Text("$service $servicio",
                               style: const TextStyle(
                                   fontSize: 16, color: Colors.grey)),
 

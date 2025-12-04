@@ -130,4 +130,116 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteVoucher => 'Eliminar Voucher';
+
+  @override
+  String get order => 'Orden: ';
+
+  @override
+  String get client => 'Cliente: ';
+
+  @override
+  String get model => 'Modelo: ';
+
+  @override
+  String get service => 'Servicio: ';
+
+  @override
+  String get searchError => 'Error al buscar: ';
+
+  @override
+  String get orderNumber => 'Número de orden';
+
+  @override
+  String get noVouchersRegistered => 'No hay vouchers registrados';
+
+  @override
+  String get enterOrderNumber => 'Ingrese el número de orden';
+
+  @override
+  String get orderError => 'No existe un voucher con ese número de orden';
+
+  @override
+  String get whatsappError => 'No se pudo abrir WhatsApp';
+
+  @override
+  String get issueDate => 'Fecha de emisión: ';
+
+  @override
+  String get deliveryDate => 'Fecha de entrega: ';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
+  String get editData => 'Editar datos';
+
+  @override
+  String get editSucces => 'Voucher actualizado correctamente';
+
+  @override
+  String get pdfError => 'Error al generar o enviar PDF: ';
+
+  @override
+  String get notDefined => 'no definida';
+
+  @override
+  String get justNumbers => 'Ingrese solo números';
+
+  @override
+  String get fourDigits => 'El número debe tener solo 4 dígitos';
+
+  @override
+  String get enterTotal => 'Ingrese el total';
+
+  @override
+  String get totalError => 'El total debe ser positivo';
+
+  @override
+  String get validTotal => 'Ingrese un número válido';
+
+  @override
+  String get selectDelivery => 'Select delivery';
+
+  @override
+  String get clean => 'Limpiar';
+
+  @override
+  String get send => 'Enviar al cliente';
+
+  @override
+  String get changeIssueDate => 'Cambiar fecha de emisión';
+
+  @override
+  String get validPhone => 'Ingrese un número de télefono válido';
+
+  @override
+  String get voucherExist => 'Ya existe un voucher con este número de orden';
+
+  @override
+  String get noUsers => 'No hay usuario autenticado';
+
+  @override
+  String get noValidTotal => 'El total debe ser un número válido';
+
+  @override
+  String get repairMessage => 'Mensaje de Reparación';
+
+  @override
+  String get deliveryRepairMessage =>
+      'Mensaje enviado al entregar una reparación';
+
+  @override
+  String get reserveMessage => 'Mensaje de Reserva';
+
+  @override
+  String get confirmReserve => 'Mensaje enviado al confirmar una reserva';
+
+  @override
+  String get currentUser => 'Usuario actual: ';
+
+  @override
+  String get closedAccount => 'Sesión cerrada correctamente';
+
+  @override
+  String get closeSession => 'Cerrar sesión';
 }
