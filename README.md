@@ -18,7 +18,9 @@ Service App es una aplicación Cross-Platform que ofrece un servicio de consulta
 - Al emitir un comprobante este registra su "ID"/numero de orden automaticamente
 - Los ID de los comprobantes deben ser unicos
 - Aquellos usuarios administradores pueden asignar el rol a otros usuarios registrados
-  
+## APK
+## ScreenShots
+
 ## Flujo de la App
 ```mermaid
 ---
@@ -52,5 +54,42 @@ flowchart TB
     n7@{ shape: diam}
     n20@{ shape: rect}
     n21@{ shape: rect}
+ ```
+## Navegación entre pantallas
+```mermaid
+---
+config:
+  layout: dagre
+---
+stateDiagram
+  direction LR
+  [*] --> Still
+  Still --> [*]
+  Still --> Moving
+  Moving --> Still
+  Moving --> Crash
+  Crash --> Still
+  Still --> s1
+  Still --> s2
+  s1 --> s3
+  s2 --> Still
+  s1 --> Still
+  s3 --> s1
+  s1 --> s4
+  s4 --> s1
+  s4 --> s5
+  s5 --> s4
+  s1 --> s6
+  s6 --> s1
+  Still:Home Page
+  Moving:Settings
+  Crash:Login/register
+  s1:VoucherScreen
+  s2:ConsultScreen
+  s3:EditVoucher
+  s4:AddVoucher
+  s5:Send voucher (WhatsApp)
+  s6:Send message (WhatsApp)
+```
 
 
