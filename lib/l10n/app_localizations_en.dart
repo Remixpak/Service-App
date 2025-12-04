@@ -242,4 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closeSession => 'Log Out';
+
+  @override
+  String get hi => 'Hi';
 }

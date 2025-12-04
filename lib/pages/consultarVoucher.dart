@@ -21,11 +21,8 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
   Voucher? voucher;
   bool loading = false;
   String? errorMessage;
-  late BuildContext scaffoldContext;
 
-  /// Buscar voucher por número de orden
   Future<void> buscarVoucher() async {
-    String searchError = AppLocalizations.of(context)!.searchError;
     final numeroOrden = ordenController.text.trim();
 
     if (numeroOrden.isEmpty) {
@@ -67,63 +64,102 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = "$searchError $e";
+        errorMessage = "${AppLocalizations.of(context)!.searchError} $e";
         voucher = null;
       });
     }
 
-    setState(() {
-      loading = false;
-    });
+    setState(() => loading = false);
   }
 
-  /// Formateo de fecha
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
 
+  InputDecoration inputDecoration(String label) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: cs.background,
+      labelStyle: TextStyle(color: cs.onBackground.withOpacity(0.8)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary, width: 2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary, width: 2),
+      ),
+      suffixIconColor: cs.secondary,
+    );
+  }
+
+  ButtonStyle elevatedButtonStyle() {
+    final cs = Theme.of(context).colorScheme;
+    return ElevatedButton.styleFrom(
+      backgroundColor: cs.background,
+      foregroundColor: cs.secondary,
+      side: BorderSide(color: cs.secondary, width: 2),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    scaffoldContext = context;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: cs.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.queryVoucher),
+        centerTitle: true,
+        backgroundColor: cs.inversePrimary,
+        foregroundColor: cs.onInverseSurface,
+        elevation: 1,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: cs.secondary,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            onPressed: () async {
-              if (voucher == null) return;
+            onPressed: voucher == null
+                ? null
+                : () async {
+                    final pdfBytes =
+                        await PdfService.generateVoucherPdf(voucher!.toMap());
+                    await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
 
-              final pdfBytes = await PdfService.generateVoucherPdf(
-                voucher!.toMap(),
-              );
+                    final dir = await getApplicationDocumentsDirectory();
+                    final file =
+                        File("${dir.path}/voucher_${voucher!.numeroOrden}.pdf");
+                    await file.writeAsBytes(pdfBytes);
 
-              await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
-
-              final dir = await getApplicationDocumentsDirectory();
-              final file = File(
-                "${dir.path}/voucher_${voucher!.numeroOrden}.pdf",
-              );
-
-              await file.writeAsBytes(pdfBytes);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)!.pdfSaved)),
-              );
-            },
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text(AppLocalizations.of(context)!.pdfSaved)),
+                    );
+                  },
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             TextField(
               controller: ordenController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.orderNumber,
-                border: OutlineInputBorder(),
+              decoration: inputDecoration(
+                AppLocalizations.of(context)!.orderNumber,
+              ).copyWith(
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: buscarVoucher,
@@ -136,15 +172,20 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: buscarVoucher,
+                style: elevatedButtonStyle(),
                 child: Text(AppLocalizations.of(context)!.search),
               ),
             ),
             const SizedBox(height: 20),
-            if (loading) const CircularProgressIndicator(),
+            if (loading) CircularProgressIndicator(color: cs.secondary),
             if (errorMessage != null)
               Text(
                 errorMessage!,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
+                style: TextStyle(
+                  color: cs.secondary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             if (voucher != null)
               Expanded(
@@ -155,26 +196,25 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: cs.secondary,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    buildItem("ID", voucher!.id),
-                    buildItem("Número de orden", voucher!.numeroOrden),
-                    buildItem("Cliente", voucher!.nombreCliente),
-                    buildItem("Teléfono", voucher!.telefonoCliente),
-                    buildItem("Descripción", voucher!.description),
-                    buildItem("Modelo", voucher!.modelo),
-                    buildItem("Servicio", voucher!.servicio),
-                    buildItem("Emisor", voucher!.emisor),
-                    buildItem(
-                      "Fecha emisión",
-                      formatDate(voucher!.fechaEmision),
-                    ),
-                    buildItem(
-                      "Fecha entrega",
-                      formatDate(voucher!.fechaEntrega),
-                    ),
-                    buildItem("Total", "\$${voucher!.total}"),
+                    ...[
+                      buildItem("ID", voucher!.id),
+                      buildItem("Número de orden", voucher!.numeroOrden),
+                      buildItem("Cliente", voucher!.nombreCliente),
+                      buildItem("Teléfono", voucher!.telefonoCliente),
+                      buildItem("Descripción", voucher!.description),
+                      buildItem("Modelo", voucher!.modelo),
+                      buildItem("Servicio", voucher!.servicio),
+                      buildItem("Emisor", voucher!.emisor),
+                      buildItem(
+                          "Fecha emisión", formatDate(voucher!.fechaEmision)),
+                      buildItem(
+                          "Fecha entrega", formatDate(voucher!.fechaEntrega)),
+                      buildItem("Total", "\$${voucher!.total}"),
+                    ],
                   ],
                 ),
               ),
@@ -184,17 +224,32 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
     );
   }
 
-  /// Widget para mostrar datos formateados
   Widget buildItem(String label, String value) {
+    final cs = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
+          color: cs.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.secondary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            )
+          ],
         ),
-        child: Text("$label: $value", style: const TextStyle(fontSize: 16)),
+        child: Text(
+          "$label: $value",
+          style: TextStyle(
+            fontSize: 16,
+            color: cs.onBackground,
+          ),
+        ),
       ),
     );
   }

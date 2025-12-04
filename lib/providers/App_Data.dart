@@ -3,7 +3,6 @@ import 'package:service_app/services/shared_preference_service.dart';
 
 class AppData extends ChangeNotifier {
   final SharedPreferenceService _prefs = SharedPreferenceService();
-
   String _mensajeReparacion =
       "Hola {NOMBRE} 👋, tu reparación con N° {ORDEN} ya está disponible. ¡Gracias por preferirnos!";
   String _mensajeReserva =

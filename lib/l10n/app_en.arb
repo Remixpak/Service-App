@@ -77,5 +77,6 @@
     "confirmReserve": "Message sent upon confirm a reserve",
     "currentUser": "Current User: ",
     "closedAccount": "Session successfully closed",
-    "closeSession": "Log Out"
+    "closeSession": "Log Out",
+    "hi": "Hi"
 }

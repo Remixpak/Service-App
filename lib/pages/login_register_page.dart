@@ -31,60 +31,137 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
-    if (auth.user != null) {
-      // Si ya está logueado, ir a HomePage
-      return const MyHomePage(title: 'Service App');
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.authentication),
-        centerTitle: true,
-        bottom: TabBar(
-          controller: tabController,
-          tabs: [
-            Tab(text: AppLocalizations.of(context)!.signIn),
-            Tab(text: AppLocalizations.of(context)!.register),
-          ],
-        ),
+  InputDecoration buildInputDecoration(String label, IconData icon) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: cs.primary),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary.withOpacity(0.4)),
       ),
-      body: TabBarView(
-        controller: tabController,
-        children: [buildLogin(auth), buildRegister(auth)],
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary, width: 2),
       ),
     );
   }
 
-  // ------------------------------------------------------------
-  // LOGIN UI
-  // ------------------------------------------------------------
+  ButtonStyle elevatedButtonStyle() {
+    final cs = Theme.of(context).colorScheme;
+
+    return ElevatedButton.styleFrom(
+      backgroundColor: cs.primary,
+      foregroundColor: cs.onPrimary,
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      elevation: 2,
+      shadowColor: cs.shadow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: cs.secondary, width: 1.4),
+      ),
+      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    final cs = Theme.of(context).colorScheme;
+
+    if (auth.user != null) {
+      return const MyHomePage(title: 'Service App');
+    }
+
+    return Scaffold(
+      backgroundColor: cs.background,
+      appBar: AppBar(
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
+        elevation: 0.5,
+        centerTitle: true,
+        title: Text(AppLocalizations.of(context)!.authentication),
+
+        // Línea debajo del AppBar igual que en Home
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Column(
+            children: [
+              TabBar(
+                controller: tabController,
+                labelColor: cs.onPrimary,
+                unselectedLabelColor: cs.onPrimary.withOpacity(0.7),
+                indicator: BoxDecoration(
+                  color: cs.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                tabs: [
+                  Tab(text: AppLocalizations.of(context)!.signIn),
+                  Tab(text: AppLocalizations.of(context)!.register),
+                ],
+              ),
+              Container(
+                height: 2,
+                color: cs.secondary,
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: tabController,
+        children: [
+          buildLogin(auth),
+          buildRegister(auth),
+        ],
+      ),
+    );
+  }
+
+  // LOGIN UI ----------------------------------------------------------
   Widget buildLogin(AuthProvider auth) {
+    final cs = Theme.of(context).colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 20),
-
-          // CORREO
-          buildTextField(
-              emailController, AppLocalizations.of(context)!.mail, Icons.email),
-
-          const SizedBox(height: 15),
-
-          // CONTRASEÑA
-          buildTextField(
-            passController,
-            AppLocalizations.of(context)!.password,
-            Icons.lock,
-            isPassword: true,
+          const SizedBox(height: 10),
+          Text(
+            AppLocalizations.of(context)!.signIn,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: cs.primary,
+            ),
           ),
-
+          Container(
+            height: 3,
+            width: 60,
+            margin: const EdgeInsets.only(top: 4, bottom: 20),
+            decoration: BoxDecoration(
+              color: cs.secondary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          TextField(
+            controller: emailController,
+            decoration: buildInputDecoration(
+                AppLocalizations.of(context)!.mail, Icons.email),
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: passController,
+            obscureText: true,
+            decoration: buildInputDecoration(
+                AppLocalizations.of(context)!.password, Icons.lock),
+          ),
           const SizedBox(height: 25),
-
-          // BOTÓN LOGIN
           ElevatedButton(
             onPressed: auth.isLoading
                 ? null
@@ -93,53 +170,44 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                       emailController.text.trim(),
                       passController.text.trim(),
                     );
-
                     if (error != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(error)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error)),
+                      );
                     }
                   },
             style: elevatedButtonStyle(),
             child: auth.isLoading
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator(color: Colors.white)
                 : Text(AppLocalizations.of(context)!.signIn),
           ),
-
           const SizedBox(height: 15),
-
-          // GOOGLE LOGIN
           OutlinedButton.icon(
-            onPressed: auth.isLoading
-                ? null
-                : () async {
-                    final error = await auth.loginWithGoogle();
-                    if (error != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(error)));
-                    }
-                  },
-            icon: const Icon(Icons.login),
-            label: Text(AppLocalizations.of(context)!.googleSignIn),
-          ),
-
-          const SizedBox(height: 30),
-
-          // TEXTO “NO TIENES CUENTA?”
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                tabController.animateTo(1);
-              },
-              child: Text(
-                AppLocalizations.of(context)!.dontHaveAccount,
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: BorderSide(color: cs.secondary, width: 1.4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
+            ),
+            icon: Icon(Icons.login, color: cs.primary),
+            label: Text(
+              AppLocalizations.of(context)!.googleSignIn,
+              style: TextStyle(color: cs.primary),
+            ),
+            onPressed: auth.isLoading ? null : () => auth.loginWithGoogle(),
+          ),
+          const SizedBox(height: 25),
+          GestureDetector(
+            onTap: () => tabController.animateTo(1),
+            child: Text(
+              AppLocalizations.of(context)!.dontHaveAccount,
+              style: TextStyle(
+                color: cs.primary,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -147,31 +215,50 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
     );
   }
 
-  // ------------------------------------------------------------
-  // REGISTER UI
-  // ------------------------------------------------------------
+  // REGISTER UI -------------------------------------------------------
   Widget buildRegister(AuthProvider auth) {
+    final cs = Theme.of(context).colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 20),
-
-          buildTextField(
-              emailController, AppLocalizations.of(context)!.mail, Icons.email),
-
-          const SizedBox(height: 15),
-
-          buildTextField(
-            passController,
-            AppLocalizations.of(context)!.password,
-            Icons.lock,
-            isPassword: true,
+          const SizedBox(height: 10),
+          Text(
+            AppLocalizations.of(context)!.register,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: cs.primary,
+            ),
           ),
-
+          Container(
+            height: 3,
+            width: 60,
+            margin: const EdgeInsets.only(top: 4, bottom: 20),
+            decoration: BoxDecoration(
+              color: cs.secondary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          TextField(
+            controller: emailController,
+            decoration: buildInputDecoration(
+              AppLocalizations.of(context)!.mail,
+              Icons.email,
+            ),
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: passController,
+            obscureText: true,
+            decoration: buildInputDecoration(
+              AppLocalizations.of(context)!.password,
+              Icons.lock,
+            ),
+          ),
           const SizedBox(height: 25),
-
           ElevatedButton(
             onPressed: auth.isLoading
                 ? null
@@ -180,84 +267,48 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                       emailController.text.trim(),
                       passController.text.trim(),
                     );
-
                     if (error != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(error)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error)),
+                      );
                     }
                   },
             style: elevatedButtonStyle(),
             child: auth.isLoading
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator(color: Colors.white)
                 : Text(AppLocalizations.of(context)!.register),
           ),
-
           const SizedBox(height: 15),
-
-          // GOOGLE REGISTER (MISMO MÉTODO)
           OutlinedButton.icon(
-            onPressed: auth.isLoading
-                ? null
-                : () async {
-                    final error = await auth.loginWithGoogle();
-                    if (error != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(error)));
-                    }
-                  },
-            icon: const Icon(Icons.person_add),
-            label: Text(AppLocalizations.of(context)!.googleRegistry),
-          ),
-
-          const SizedBox(height: 30),
-
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                tabController.animateTo(0);
-              },
-              child: Text(
-                AppLocalizations.of(context)!.haveAccount,
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: BorderSide(color: cs.secondary, width: 1.4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
+            ),
+            onPressed: auth.isLoading ? null : auth.loginWithGoogle,
+            icon: Icon(Icons.person_add, color: cs.primary),
+            label: Text(
+              AppLocalizations.of(context)!.googleRegistry,
+              style: TextStyle(color: cs.primary),
+            ),
+          ),
+          const SizedBox(height: 25),
+          GestureDetector(
+            onTap: () => tabController.animateTo(0),
+            child: Text(
+              AppLocalizations.of(context)!.haveAccount,
+              style: TextStyle(
+                color: cs.primary,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  // ------------------------------------------------------------
-  // WIDGETS REUTILIZABLES
-  // ------------------------------------------------------------
-  Widget buildTextField(
-    TextEditingController controller,
-    String label,
-    IconData icon, {
-    bool isPassword = false,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  ButtonStyle elevatedButtonStyle() {
-    return ElevatedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
     );
   }
 }

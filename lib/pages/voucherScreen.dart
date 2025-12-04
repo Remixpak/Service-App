@@ -16,13 +16,10 @@ class VoucherScreen extends StatefulWidget {
 }
 
 class _VoucherScreenState extends State<VoucherScreen> {
-  /// Para controlar qué card está expandido
   String? expandedId;
 
-  /// Mensajes por defecto
   String mensajeReparacion(BuildContext context, String nombre, String orden) {
     final appData = Provider.of<AppData>(context, listen: false);
-
     return appData.mensajeReparacion
         .replaceAll("{NOMBRE}", nombre)
         .replaceAll("{ORDEN}", orden);
@@ -30,13 +27,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
   String mensajeReserva(BuildContext context, String nombre, String orden) {
     final appData = Provider.of<AppData>(context, listen: false);
-
     return appData.mensajeReserva
         .replaceAll("{NOMBRE}", nombre)
         .replaceAll("{ORDEN}", orden);
   }
 
-  /// Abrir WhatsApp con mensaje
   Future<void> enviarMensajeWhatsapp(String telefono, String mensaje) async {
     final cleanPhone = telefono.replaceAll(RegExp(r'\D'), '');
     final clPhone = cleanPhone.startsWith("56") ? cleanPhone : "56$cleanPhone";
@@ -53,24 +48,28 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     String order = AppLocalizations.of(context)!.order;
     String client = AppLocalizations.of(context)!.client;
     String model = AppLocalizations.of(context)!.model;
     String service = AppLocalizations.of(context)!.service;
+
     return Scaffold(
+      backgroundColor: cs.background,
       appBar: AppBar(
         title: const Text("Vouchers"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
         label: Text(AppLocalizations.of(context)!.issueVoucher),
+        backgroundColor: cs.secondary,
+        foregroundColor: cs.onSecondary,
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const EmitirVoucherScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const EmitirVoucherScreen()),
           );
         },
       ),
@@ -81,17 +80,15 @@ class _VoucherScreenState extends State<VoucherScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(
-                child: CircularProgressIndicator(color: Colors.blue));
+            return Center(child: CircularProgressIndicator(color: cs.primary));
           }
 
           final docs = snapshot.data!.docs;
-
           if (docs.isEmpty) {
             return Center(
               child: Text(
                 AppLocalizations.of(context)!.noVouchersRegistered,
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: cs.onBackground),
               ),
             );
           }
@@ -103,9 +100,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
               final v = docs[index];
               final String id = v.id;
 
-              /// ---------- LECTURA DE DATOS SEGURA ----------
               final data = v.data() as Map<String, dynamic>;
-
               final numero = data["numeroOrden"] ?? "---";
               final cliente = data["nombreCliente"] ?? "Sin nombre";
               final modelo = data["modelo"] ?? "Sin modelo";
@@ -113,16 +108,13 @@ class _VoucherScreenState extends State<VoucherScreen> {
               final servicio = data["servicio"] ?? "Sin servicio";
 
               final bool expanded = expandedId == id;
-
-              final voucher = Voucher.fromMap({
-                ...data,
-                "id": id,
-              });
+              final voucher = Voucher.fromMap({...data, "id": id});
 
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: Card(
+                  color: cs.surface,
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -139,15 +131,16 @@ class _VoucherScreenState extends State<VoucherScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// --------- CABECERA ----------
+                          // Cabecera
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 "$order $numero",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: cs.primary,
                                 ),
                               ),
                               Icon(
@@ -155,45 +148,44 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                     ? Icons.keyboard_arrow_up
                                     : Icons.keyboard_arrow_down,
                                 size: 28,
+                                color: cs.secondary,
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 4),
-
                           Text("$client $cliente",
-                              style: const TextStyle(fontSize: 16)),
+                              style:
+                                  TextStyle(fontSize: 16, color: cs.onSurface)),
                           Text("$model $modelo",
-                              style: const TextStyle(fontSize: 16)),
+                              style:
+                                  TextStyle(fontSize: 16, color: cs.onSurface)),
                           Text("$service $servicio",
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.grey)),
+                              style:
+                                  TextStyle(fontSize: 16, color: cs.outline)),
 
-                          /// --------- EXPANSIÓN ----------
+                          // Expansión
                           if (expanded) ...[
                             const Divider(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                /// 🟩 Enviar mensaje
                                 IconButton(
-                                  icon: const Icon(Icons.send,
-                                      color: Colors.green, size: 30),
+                                  icon: Icon(Icons.send,
+                                      color: cs.secondary, size: 28),
                                   onPressed: () {
-                                    final mensaje = servicio == "Reparación"
+                                    final mensaje = servicio ==
+                                            AppLocalizations.of(context)!
+                                                .repairMessage
                                         ? mensajeReparacion(
                                             context, cliente, numero)
                                         : mensajeReserva(
                                             context, cliente, numero);
-
                                     enviarMensajeWhatsapp(telefono, mensaje);
                                   },
                                 ),
-
-                                /// EDITAR
                                 IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blue, size: 30),
+                                  icon: Icon(Icons.edit,
+                                      color: cs.primary, size: 28),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -204,11 +196,9 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                     );
                                   },
                                 ),
-
-                                /// Eliminar
                                 IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red, size: 30),
+                                  icon: Icon(Icons.delete,
+                                      color: cs.error, size: 28),
                                   onPressed: () async {
                                     await FirebaseFirestore.instance
                                         .collection("vouchers")
@@ -217,7 +207,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                   },
                                 ),
                               ],
-                            )
+                            ),
                           ]
                         ],
                       ),

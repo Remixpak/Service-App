@@ -21,6 +21,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF78B2BF);
+    const accentDark = Color(0xFFBF3111);
+    const accent = Color(0xFFD95448);
+    const accentLight = Color(0xFFD97B73);
+    const surfaceBg = Color(0xFFF2F2F2);
+
+    final colorScheme = ColorScheme(
+      brightness: Brightness.light,
+      primary: primaryColor,
+      onPrimary: Colors.white,
+      primaryContainer: primaryColor.withOpacity(0.85),
+      onPrimaryContainer: Colors.white,
+      secondary: accent,
+      onSecondary: Colors.white,
+      secondaryContainer: accentLight,
+      onSecondaryContainer: Colors.white,
+      tertiary: accentDark,
+      onTertiary: Colors.white,
+      error: Colors.red.shade700,
+      onError: Colors.white,
+      background: surfaceBg,
+      onBackground: Colors.black87,
+      surface: Colors.white,
+      onSurface: Colors.black87,
+      surfaceVariant: surfaceBg,
+      onSurfaceVariant: Colors.black54,
+      outline: Colors.black26,
+      shadow: Colors.black26,
+      inversePrimary: primaryColor.withOpacity(0.9),
+      inverseSurface: Colors.black87,
+      onInverseSurface: Colors.white,
+    );
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -34,24 +67,39 @@ class MyApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: [
-          Locale('en'), // English
-          Locale('es'), // Spanish
+        supportedLocales: const [
+          Locale('en'),
+          Locale('es'),
         ],
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          colorScheme: colorScheme,
+          scaffoldBackgroundColor: surfaceBg,
+          appBarTheme: AppBarTheme(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            elevation: 1,
+            centerTitle: true,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              elevation: 2,
+              shadowColor: Colors.black.withOpacity(0.25),
+            ),
+          ),
         ),
         home: const MyHomePage(title: 'Service App'),
       ),
     );
-    /*return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      //home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const LoginRegisterPage(),
-    );*/
   }
 }

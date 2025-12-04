@@ -29,29 +29,25 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
   late final String idVoucher;
   DateTime fechaEmision = DateTime.now();
-  DateTime? fechaEntrega; // opcional
+  DateTime? fechaEntrega;
 
   @override
   void initState() {
     super.initState();
-
     final docRef = FirebaseFirestore.instance.collection("vouchers").doc();
     idVoucher = docRef.id;
   }
 
-  /// ---------------------------
-  /// VALIDAR QUE EL NÚMERO DE ORDEN SEA ÚNICO
-  /// ---------------------------
   Future<bool> existeNumeroOrden(String num) async {
     final query = await FirebaseFirestore.instance
         .collection("vouchers")
         .where("numeroOrden", isEqualTo: num)
         .get();
-
     return query.docs.isNotEmpty;
   }
 
   Future<void> guardarVoucher() async {
+    final cs = Theme.of(context).colorScheme;
     String noUser = AppLocalizations.of(context)!.noUsers;
     if (!_formKey.currentState!.validate()) return;
 
@@ -64,39 +60,28 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     }
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
-
     if (auth.appUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $noUser")),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $noUser")));
       return;
     }
 
-    final String emisor = auth.appUser!.name;
-
-    // validar número de orden único
+    final emisor = auth.appUser!.name;
     final numeroOrden = numeroOrdenController.text.trim();
     if (await existeNumeroOrden(numeroOrden)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.voucherExist),
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context)!.voucherExist)),
       );
       return;
     }
 
-    // parse total
-    final totalText = totalController.text.trim();
-    final int? totalParsed = int.tryParse(totalText);
+    final totalParsed = int.tryParse(totalController.text.trim());
     if (totalParsed == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.validTotal)),
       );
       return;
     }
-
-    // si no hay fechaEntrega seleccionada, usar fechaEmision como valor por defecto
-    final DateTime fechaEntregaFinal = fechaEntrega ?? fechaEmision;
 
     final voucher = Voucher(
       id: idVoucher,
@@ -106,7 +91,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       description: descripcionController.text.trim(),
       emisor: emisor,
       fechaEmision: fechaEmision,
-      fechaEntrega: fechaEntregaFinal,
+      fechaEntrega: fechaEntrega ?? fechaEmision,
       modelo: modeloSeleccionado,
       servicio: servicioSeleccionado,
       total: totalParsed,
@@ -127,14 +112,14 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
   Future<void> enviarVoucher() async {
     if (!_formKey.currentState!.validate()) return;
+
     String pdfError = AppLocalizations.of(context)!.pdfError;
     final phone = telefonoController.text.trim();
     if (phone.isEmpty) {
@@ -144,7 +129,6 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       return;
     }
 
-    // Crear mapa con los datos EXACTAMENTE igual a como los guardarás en Firestore
     final data = {
       "id": idVoucher,
       "numeroOrden": numeroOrdenController.text.trim(),
@@ -160,14 +144,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     };
 
     try {
-      // Generar el PDF como bytes
       final pdfBytes = await PdfService.generateVoucherPdf(data);
-
-      // Guardar el PDF temporalmente
       final filePath =
           await ShareService.savePdfTemp(pdfBytes, "voucher_$idVoucher.pdf");
-
-      // Compartir el PDF
       await ShareService.sharePdf(filePath);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -176,16 +155,65 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     }
   }
 
+  InputDecoration modernInput(String label,
+      {Color? fillColor, Color? borderColor}) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: fillColor ?? cs.surface,
+      labelStyle: TextStyle(fontWeight: FontWeight.w500, color: cs.primary),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: borderColor ?? cs.secondary, width: 2),
+      ),
+    );
+  }
+
+  Widget fechaTile(String label, DateTime? fecha, VoidCallback onTap,
+      {bool allowClear = false}) {
+    final cs = Theme.of(context).colorScheme;
+    return ListTile(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      tileColor: cs.surface,
+      title: Text(
+        fecha == null
+            ? "$label (${AppLocalizations.of(context)!.notDefined})"
+            : "$label ${fecha.day}/${fecha.month}/${fecha.year}",
+        style: TextStyle(color: cs.primary, fontWeight: FontWeight.w500),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.calendar_month, color: cs.secondary),
+          if (allowClear)
+            IconButton(
+              icon: Icon(Icons.clear, color: cs.secondary),
+              onPressed: () => setState(() => fechaEntrega = null),
+            ),
+        ],
+      ),
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    String date = AppLocalizations.of(context)!.date;
-    String clientName = AppLocalizations.of(context)!.clientName;
-    String deliveryDate = AppLocalizations.of(context)!.deliveryDate;
-    String notDefined = AppLocalizations.of(context)!.notDefined;
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: cs.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.issueVoucher),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: cs.inversePrimary,
+        foregroundColor: cs.onInverseSurface,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: cs.secondary),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -195,138 +223,92 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
             children: [
               Text(
                 AppLocalizations.of(context)!.voucherData,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: cs.primary),
               ),
-              const SizedBox(height: 20),
-
-              /// ID automático mostrado
-              Text(
-                AppLocalizations.of(context)!.voucherId,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
               Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(idVoucher),
+                height: 3,
+                width: 60,
+                margin: const EdgeInsets.only(top: 4, bottom: 20),
+                color: cs.secondary,
               ),
-              const SizedBox(height: 20),
-
-              /// Número de orden
+              Text("ID: $idVoucher",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: cs.primary)),
+              const SizedBox(height: 14),
               TextFormField(
                 controller: numeroOrdenController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.orderNumber,
-                  labelStyle: TextStyle(fontFamily: "Roboto"),
-                  errorStyle: TextStyle(fontFamily: "Roboto"),
-                  border: OutlineInputBorder(),
-                ),
-                style: TextStyle(fontFamily: "Roboto"),
-                keyboardType: TextInputType.number,
+                decoration:
+                    modernInput(AppLocalizations.of(context)!.orderNumber),
                 maxLength: 4,
+                keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty)
                     return AppLocalizations.of(context)!.enterOrderNumber;
-                  }
-                  if (value.length != 4) {
+                  if (value.length != 4)
                     return AppLocalizations.of(context)!.fourDigits;
-                  }
-                  if (!RegExp(r'^[0-9]{4}$').hasMatch(value)) {
+                  if (!RegExp(r'^[0-9]{4}$').hasMatch(value))
                     return AppLocalizations.of(context)!.justNumbers;
-                  }
                   return null;
                 },
               ),
-
-              const SizedBox(height: 15),
-
-              /// Nombre
+              const SizedBox(height: 14),
               TextFormField(
                 controller: nombreController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.clientName,
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value!.isEmpty ? clientName : null,
+                decoration:
+                    modernInput(AppLocalizations.of(context)!.clientName),
+                validator: (value) => value!.isEmpty
+                    ? AppLocalizations.of(context)!.clientName
+                    : null,
               ),
-              const SizedBox(height: 15),
-
-              /// Teléfono
+              const SizedBox(height: 14),
               TextFormField(
                 controller: telefonoController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.clientPhone,
-                  border: OutlineInputBorder(),
-                ),
                 keyboardType: TextInputType.phone,
+                decoration:
+                    modernInput(AppLocalizations.of(context)!.clientPhone),
                 validator: (value) => value!.isEmpty
                     ? AppLocalizations.of(context)!.enterPhone
                     : null,
               ),
-              const SizedBox(height: 15),
-
-              /// Descripción
+              const SizedBox(height: 14),
               TextFormField(
                 controller: descripcionController,
                 maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.description,
-                  border: OutlineInputBorder(),
-                ),
+                decoration:
+                    modernInput(AppLocalizations.of(context)!.description),
                 validator: (value) => value!.isEmpty
                     ? AppLocalizations.of(context)!.enterDescription
                     : null,
               ),
-              const SizedBox(height: 20),
-
-              /// MODELO (Dropdown)
+              const SizedBox(height: 14),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.model,
-                  border: OutlineInputBorder(),
-                ),
                 value: modeloSeleccionado,
+                decoration: modernInput(AppLocalizations.of(context)!.model),
                 items: Voucher.modelosDisponibles
                     .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                     .toList(),
-                onChanged: (value) => setState(() {
-                  modeloSeleccionado = value!;
-                }),
+                onChanged: (v) => setState(() => modeloSeleccionado = v!),
               ),
-              const SizedBox(height: 20),
-
-              /// SERVICIO (Dropdown)
+              const SizedBox(height: 14),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.service,
-                  border: OutlineInputBorder(),
-                ),
                 value: servicioSeleccionado,
+                decoration: modernInput(AppLocalizations.of(context)!.service),
                 items: Voucher.serviciosDisponibles
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                     .toList(),
-                onChanged: (value) => setState(() {
-                  servicioSeleccionado = value!;
-                }),
+                onChanged: (v) => setState(() => servicioSeleccionado = v!),
               ),
-              const SizedBox(height: 20),
-
-              /// TOTAL (numérico)
+              const SizedBox(height: 14),
               TextFormField(
                 controller: totalController,
-                decoration: const InputDecoration(
-                  labelText: "Total (CLP)",
-                  border: OutlineInputBorder(),
-                ),
                 keyboardType: TextInputType.number,
+                decoration: modernInput("Total (CLP)"),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty)
                     return AppLocalizations.of(context)!.enterTotal;
-                  }
                   final parsed = int.tryParse(value);
                   if (parsed == null)
                     return AppLocalizations.of(context)!.validTotal;
@@ -335,100 +317,53 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                   return null;
                 },
               ),
-
-              const SizedBox(height: 20),
-
-              /// Fecha emisión + Fecha entrega opcional
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("$date ${fechaEmision.toLocal()}".split('.')[0]),
-                        const SizedBox(height: 6),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: fechaEmision,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (picked != null) {
-                              setState(() => fechaEmision = picked);
-                            }
-                          },
-                          child: Text(
-                              AppLocalizations.of(context)!.changeIssueDate),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  // Fecha entrega (opcional)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(fechaEntrega == null
-                            ? "$deliveryDate ($notDefined)"
-                            : "$deliveryDate ${fechaEntrega!.toLocal()}"
-                                .split('.')[0]),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: fechaEntrega ?? fechaEmision,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (picked != null) {
-                                  setState(() => fechaEntrega = picked);
-                                }
-                              },
-                              child: Text(
-                                  AppLocalizations.of(context)!.selectDelivery),
-                            ),
-                            const SizedBox(width: 8),
-                            TextButton(
-                              onPressed: () {
-                                setState(() => fechaEntrega = null);
-                              },
-                              child: Text(AppLocalizations.of(context)!.clean),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              /// Guardar
+              const SizedBox(height: 14),
+              fechaTile("Fecha Emisión", fechaEmision, () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: fechaEmision,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) setState(() => fechaEmision = picked);
+              }),
+              const SizedBox(height: 10),
+              fechaTile("Fecha Entrega", fechaEntrega, () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: fechaEntrega ?? fechaEmision,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) setState(() => fechaEntrega = picked);
+              }, allowClear: true),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: guardarVoucher,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  textStyle: const TextStyle(fontSize: 18),
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text(AppLocalizations.of(context)!.saveVoucher),
+                child: Text(AppLocalizations.of(context)!.saveVoucher,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
               ),
+              const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: enviarVoucher,
-                icon: const Icon(Icons.share),
-                label: Text(AppLocalizations.of(context)!.send),
+                icon: Icon(Icons.share, color: cs.onSecondary),
+                label: Text(AppLocalizations.of(context)!.send,
+                    style: TextStyle(color: cs.onSecondary)),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  backgroundColor: Colors.green,
-                  textStyle: const TextStyle(fontSize: 18),
+                  backgroundColor: cs.secondary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],

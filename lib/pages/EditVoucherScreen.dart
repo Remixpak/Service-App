@@ -31,8 +31,6 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Rellenar controladores con el voucher recibido
     numeroOrdenController =
         TextEditingController(text: widget.voucher.numeroOrden);
     nombreClienteController =
@@ -53,9 +51,8 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
   }
 
   Future<void> guardarCambios() async {
-    String saveError = AppLocalizations.of(context)!.saveError;
+    final cs = Theme.of(context).colorScheme;
     setState(() => saving = true);
-
     try {
       final docRef = FirebaseFirestore.instance
           .collection("vouchers")
@@ -80,13 +77,14 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
         SnackBar(content: Text(AppLocalizations.of(context)!.editSucces)),
       );
 
-      Navigator.pop(context); // volver atrás
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("$saveError $e")),
+        SnackBar(
+          content: Text("${AppLocalizations.of(context)!.saveError} $e"),
+        ),
       );
     }
-
     setState(() => saving = false);
   }
 
@@ -97,40 +95,97 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
     );
-
     if (fecha != null) {
       setState(() {
-        if (esEmision) {
+        if (esEmision)
           fechaEmision = fecha;
-        } else {
+        else
           fechaEntrega = fecha;
-        }
       });
     }
   }
 
-  Widget buildInput(String label, TextEditingController controller,
+  Widget inputField(String label, TextEditingController controller,
       {TextInputType type = TextInputType.text}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: controller,
-        keyboardType: type,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: cs.primary)),
+        const SizedBox(height: 4),
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cs.secondary, width: 2),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: type,
+            decoration: const InputDecoration(
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              border: InputBorder.none,
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 14),
+      ],
+    );
+  }
+
+  Widget dropdownField(String label, String value, List<String> options,
+      void Function(String) onChanged) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: cs.primary)),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cs.secondary, width: 2),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              items: options
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) onChanged(v);
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     String issueDate = AppLocalizations.of(context)!.issueDate;
     String deliveryDate = AppLocalizations.of(context)!.deliveryDate;
+
     return Scaffold(
+      backgroundColor: cs.background,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.editingVoucher),
+        backgroundColor: cs.inversePrimary,
+        foregroundColor: cs.onInverseSurface,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: cs.secondary),
+        ),
       ),
       body: saving
           ? const Center(child: CircularProgressIndicator())
@@ -141,90 +196,82 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
                   Text(
                     AppLocalizations.of(context)!.editData,
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  buildInput("Número de orden", numeroOrdenController,
+                  Container(
+                    height: 3,
+                    width: 60,
+                    margin: const EdgeInsets.only(top: 4, bottom: 20),
+                    color: cs.secondary,
+                  ),
+                  inputField("Número de orden", numeroOrdenController,
                       type: TextInputType.number),
-                  buildInput("Nombre del cliente", nombreClienteController),
-                  buildInput("Teléfono", telefonoClienteController,
+                  inputField("Nombre del cliente", nombreClienteController),
+                  inputField("Teléfono", telefonoClienteController,
                       type: TextInputType.phone),
-                  buildInput("Descripción", descriptionController),
-                  buildInput("Emisor", emisorController),
-                  buildInput("Total", totalController,
+                  inputField("Descripción", descriptionController),
+                  inputField("Emisor", emisorController),
+                  inputField("Total", totalController,
                       type: TextInputType.number),
-
-                  const SizedBox(height: 10),
-
-                  // Modelo
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.model,
-                      border: OutlineInputBorder(),
-                    ),
-                    value: modeloSeleccionado,
-                    items: Voucher.modelosDisponibles
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(e),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => modeloSeleccionado = v);
-                    },
+                  dropdownField(
+                    AppLocalizations.of(context)!.model,
+                    modeloSeleccionado,
+                    Voucher.modelosDisponibles,
+                    (v) => setState(() => modeloSeleccionado = v),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  // Servicio
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.service,
-                      border: OutlineInputBorder(),
-                    ),
-                    value: servicioSeleccionado,
-                    items: Voucher.serviciosDisponibles
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(e),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => servicioSeleccionado = v);
-                    },
+                  dropdownField(
+                    AppLocalizations.of(context)!.service,
+                    servicioSeleccionado,
+                    Voucher.serviciosDisponibles,
+                    (v) => setState(() => servicioSeleccionado = v),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  // Fecha emisión
                   ListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    tileColor: cs.surface,
                     title: Text(
-                        "$issueDate ${fechaEmision.day}/${fechaEmision.month}/${fechaEmision.year}"),
-                    trailing: const Icon(Icons.calendar_month),
+                      "$issueDate ${fechaEmision.day}/${fechaEmision.month}/${fechaEmision.year}",
+                      style: TextStyle(
+                          color: cs.primary, fontWeight: FontWeight.w500),
+                    ),
+                    trailing: Icon(Icons.calendar_month, color: cs.secondary),
                     onTap: () => seleccionarFecha(true),
                   ),
                   const SizedBox(height: 10),
-
-                  // Fecha entrega
                   ListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    tileColor: cs.surface,
                     title: Text(
-                        "$deliveryDate ${fechaEntrega.day}/${fechaEntrega.month}/${fechaEntrega.year}"),
-                    trailing: const Icon(Icons.calendar_month),
+                      "$deliveryDate ${fechaEntrega.day}/${fechaEntrega.month}/${fechaEntrega.year}",
+                      style: TextStyle(
+                          color: cs.primary, fontWeight: FontWeight.w500),
+                    ),
+                    trailing: Icon(Icons.calendar_month, color: cs.secondary),
                     onTap: () => seleccionarFecha(false),
                   ),
-
-                  const SizedBox(height: 20),
-
+                  const SizedBox(height: 25),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cs.background,
+                        foregroundColor: cs.secondary,
+                        side: BorderSide(color: cs.secondary, width: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       onPressed: guardarCambios,
-                      icon: const Icon(Icons.save),
-                      label: Text(AppLocalizations.of(context)!.saveChanges),
+                      icon: Icon(Icons.save, color: cs.secondary),
+                      label: Text(
+                        AppLocalizations.of(context)!.saveChanges,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                 ],

@@ -565,6 +565,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cerrar sesión'**
   String get closeSession;
+
+  /// No description provided for @hi.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola'**
+  String get hi;
 }
 
 class _AppLocalizationsDelegate

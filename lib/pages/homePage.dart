@@ -1,4 +1,3 @@
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_app/pages/consultarVoucher.dart';
@@ -19,6 +18,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool? hasConnection;
+
   @override
   void initState() {
     super.initState();
@@ -55,11 +55,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final outlineColor = Theme.of(context).colorScheme.secondary;
+
+    if (hasConnection == null) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(
+              height: 1,
+              color: outlineColor,
+            ),
+          ),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     if (hasConnection == false) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(
+              height: 1,
+              color: outlineColor,
+            ),
+          ),
         ),
         body: Center(
           child: Text(
@@ -69,10 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     }
-    final auth = Provider.of<AuthProvider>(context);
 
-    print("print usuario: ${auth.appUser?.email}");
-    print("admin: ${auth.appUser?.admin}");
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -87,11 +113,14 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: outlineColor, // línea bajo el AppBar
+          ),
+        ),
       ),
-
-      // ─────────────────────────────────────────────────────────────
-      //                 BODY: LOADER O BOTONES
-      // ─────────────────────────────────────────────────────────────
       body: Center(
         child: (auth.appUser == null)
             ? Column(
@@ -106,6 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: outlineColor, // borde del botón
+                          width: 2,
+                        ),
                       ),
                       textStyle: const TextStyle(
                         fontSize: 18,
@@ -123,9 +156,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: toConsultarVoucher,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 36, vertical: 18),
+                        horizontal: 36,
+                        vertical: 18,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: outlineColor,
+                          width: 2,
+                        ),
                       ),
                       textStyle: const TextStyle(
                         fontSize: 18,
@@ -145,6 +184,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: outlineColor,
+                            width: 2,
+                          ),
                         ),
                         textStyle: const TextStyle(
                           fontSize: 18,

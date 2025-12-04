@@ -76,5 +76,6 @@
   "confirmReserve": "Mensaje enviado al confirmar una reserva",
   "currentUser": "Usuario actual: ",
   "closedAccount": "Sesión cerrada correctamente",
-  "closeSession": "Cerrar sesión"
+  "closeSession": "Cerrar sesión",
+  "hi": "Hola"
 }
