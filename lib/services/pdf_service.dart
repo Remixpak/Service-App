@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/widgets.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +15,20 @@ class PdfService {
     // LOGO (si no existe, el MemoryImage fallará — mantén el asset si lo usas)
     final logoBytes = await rootBundle.load('assets/images/enterpriceLogo.png');
     final logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
-
+    final whatsAppLogoBytes =
+        await rootBundle.load('assets/images/logo_whatsapp.png');
+    final whatsAppLogo = pw.MemoryImage(whatsAppLogoBytes.buffer.asUint8List());
+    final facebookLogoBytes =
+        await rootBundle.load('assets/images/logo_facebook.png');
+    final facebookLogo = pw.MemoryImage(facebookLogoBytes.buffer.asUint8List());
+    final instagramLogoBytes =
+        await rootBundle.load('assets/images/logo_instagram.png');
+    final instagramLogo =
+        pw.MemoryImage(instagramLogoBytes.buffer.asUint8List());
+    final ubicationLogoBytes =
+        await rootBundle.load('assets/images/logo_ubicacion.png');
+    final ubicacionLogo =
+        pw.MemoryImage(ubicationLogoBytes.buffer.asUint8List());
     // Fuentes
     final robotoRegular = pw.Font.ttf(
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf"),
@@ -106,28 +120,41 @@ class PdfService {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              // LOGO CENTRADO
-              pw.Center(child: pw.Image(logo, width: 150)),
-              pw.SizedBox(height: 20),
-
-              // TÍTULO con número de orden (no con el doc id salvo como fallback)
-              pw.Center(
-                child: pw.Text(
-                  "N° ORDEN: $displayOrder",
-                  style: pw.TextStyle(
-                    font: robotoBold,
-                    fontSize: 22,
-                    color: PdfColor(0.35, 0.55, 0.70),
-                  ),
-                ),
-              ),
-              pw.SizedBox(height: 20),
-
               // FECHAS (derecha)
               pw.Row(
                 children: [
-                  pw.Expanded(child: pw.Container()), // espacio izq
-
+                  // LOGO
+                  pw.Container(child: pw.Image(logo, width: 100)),
+                  pw.SizedBox(width: 15),
+                  pw.Container(
+                      width: 150,
+                      child: pw.Column(children: [
+                        pw.Row(children: [
+                          pw.Image(ubicacionLogo, width: 16),
+                          pw.Text(
+                              "1 Sur N° 1339, local 9, \nGallería Salomón Sabag - Talca",
+                              style: pw.TextStyle(fontSize: 10)),
+                        ]),
+                        pw.SizedBox(height: 5),
+                        pw.Row(children: [
+                          pw.Image(whatsAppLogo, width: 16),
+                          pw.Text("+569 6651 0765",
+                              style: pw.TextStyle(fontSize: 10)),
+                        ]),
+                        pw.SizedBox(height: 5),
+                        pw.Row(children: [
+                          pw.Image(facebookLogo, width: 16),
+                          pw.Text("playservicetalca",
+                              style: pw.TextStyle(fontSize: 10)),
+                        ]),
+                        pw.SizedBox(height: 5),
+                        pw.Row(children: [
+                          pw.Image(instagramLogo, width: 16),
+                          pw.Text("@playservicetalca",
+                              style: pw.TextStyle(fontSize: 10)),
+                        ]),
+                      ])),
+                  pw.SizedBox(width: 15),
                   pw.Container(
                     width: 260,
                     child: pw.Table(
@@ -142,7 +169,19 @@ class PdfService {
                   ),
                 ],
               ),
+              pw.SizedBox(height: 20),
 
+              // TÍTULO con número de orden (no con el doc id salvo como fallback)
+              pw.Center(
+                child: pw.Text(
+                  "N° ORDEN: $displayOrder",
+                  style: pw.TextStyle(
+                    font: robotoBold,
+                    fontSize: 22,
+                    color: PdfColor(0.35, 0.55, 0.70),
+                  ),
+                ),
+              ),
               pw.SizedBox(height: 30),
 
               // TABLA PRINCIPAL (Nombre / Emisor / Teléfono / Modelo)
@@ -152,12 +191,11 @@ class PdfService {
                   0: const pw.FlexColumnWidth(2),
                   1: const pw.FlexColumnWidth(2),
                   2: const pw.FlexColumnWidth(2),
+                  3: const pw.FlexColumnWidth(2),
                 },
                 children: [
-                  _titleRow(["Nombre", "", "Emisor"], robotoBold),
-                  _dataRow([nombre, "", emisor], robotoRegular),
-                  _titleRow(["Teléfono", "", "Modelo"], robotoBold),
-                  _dataRow([telefono, "", modelo], robotoRegular),
+                  _titleRow(["Nombre", "", "Emisor", ""], robotoBold),
+                  _titleRow(["Teléfono", "", "Modelo", ""], robotoBold),
                 ],
               ),
 

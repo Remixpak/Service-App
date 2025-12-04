@@ -82,6 +82,11 @@ flutter:
   assets:
      - .env
      - assets/images/enterpriceLogo.png
+     - assets/images/App-Service_icon.png
+     - assets/images/logo_instagram.png
+     - assets/images/logo_facebook.png
+     - assets/images/logo_whatsapp.png
+     - assets/images/logo_ubicacion.png
      - assets/fonts/Roboto-Regular.ttf
      - assets/fonts/Roboto-Bold.ttf
      
@@ -99,8 +104,12 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
+  fonts:
+   - family: Roboto
+     fonts:
+       - asset: assets/fonts/Roboto-Regular.ttf
+       - asset: assets/fonts/Roboto-Bold.ttf
+         style: Bold
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf

@@ -126,6 +126,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Image.asset(
+                    'assets/images/enterpriceLogo.png',
+                    width: 150,
+                    height: 150,
+                  ),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: toConsultarVoucher,
                     style: ElevatedButton.styleFrom(
@@ -149,34 +155,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: toConsultarVoucher,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 36,
-                        vertical: 18,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: outlineColor,
-                          width: 2,
-                        ),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+            : SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(150),
+                      child: Image.asset(
+                        'assets/images/App-Service_icon.png',
+                        width: 200,
+                        height: 200,
                       ),
                     ),
-                    child: Text(AppLocalizations.of(context)!.query),
-                  ),
-                  const SizedBox(height: 20),
-                  if (auth.appUser?.admin == true)
+                    const SizedBox(height: 40),
                     ElevatedButton(
-                      onPressed: toVoucherScreen,
+                      onPressed: toConsultarVoucher,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 36,
@@ -194,9 +188,47 @@ class _MyHomePageState extends State<MyHomePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)!.issueVoucher),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.query_stats),
+                          SizedBox(width: 8),
+                          Text(AppLocalizations.of(context)!.query),
+                        ],
+                      ),
                     ),
-                ],
+                    const SizedBox(height: 20),
+                    if (auth.appUser?.admin == true)
+                      ElevatedButton(
+                        onPressed: toVoucherScreen,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 36,
+                            vertical: 18,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: outlineColor,
+                              width: 2,
+                            ),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.document_scanner),
+                            SizedBox(width: 8),
+                            Text(AppLocalizations.of(context)!.issueVoucher),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
       ),
     );

@@ -80,6 +80,12 @@ class MyApp extends StatelessWidget {
             foregroundColor: colorScheme.onPrimary,
             elevation: 1,
             centerTitle: true,
+            titleTextStyle: TextStyle(
+              color: colorScheme.onPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Roboto',
+            ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
