@@ -194,8 +194,10 @@ class PdfService {
                   3: const pw.FlexColumnWidth(2),
                 },
                 children: [
-                  _titleRow(["Nombre", "", "Emisor", ""], robotoBold),
-                  _titleRow(["Teléfono", "", "Modelo", ""], robotoBold),
+                  // Encabezados
+                  _titleRow(["Nombre", nombre, "Emisor", emisor], robotoBold),
+                  _titleRow(
+                      ["Teléfono", telefono, "Modelo", modelo], robotoBold),
                 ],
               ),
 

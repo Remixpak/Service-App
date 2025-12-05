@@ -5,8 +5,6 @@ import 'package:service_app/l10n/app_localizations.dart';
 import 'package:service_app/models/voucher.dart';
 import 'package:service_app/providers/auth_provider.dart';
 import '../services/connection_service.dart';
-import '../services/pdf_service.dart';
-import '../services/share_service.dart';
 
 class EmitirVoucherScreen extends StatefulWidget {
   const EmitirVoucherScreen({super.key});
@@ -36,6 +34,10 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     super.initState();
     final docRef = FirebaseFirestore.instance.collection("vouchers").doc();
     idVoucher = docRef.id;
+
+    generarNumeroOrden().then((numOrden) {
+      numeroOrdenController.text = numOrden;
+    });
   }
 
   Future<bool> existeNumeroOrden(String num) async {
@@ -47,7 +49,6 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
   }
 
   Future<void> guardarVoucher() async {
-    final cs = Theme.of(context).colorScheme;
     String noUser = AppLocalizations.of(context)!.noUsers;
     if (!_formKey.currentState!.validate()) return;
 
@@ -61,8 +62,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     if (auth.appUser == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $noUser")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $noUser")));
       return;
     }
 
@@ -112,12 +114,34 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
-  Future<void> enviarVoucher() async {
+  Future<String> generarNumeroOrden() async {
+    final query = await FirebaseFirestore.instance
+        .collection("vouchers")
+        .orderBy("numeroOrden", descending: true)
+        .limit(1)
+        .get();
+
+    if (query.docs.isEmpty) {
+      return "0001";
+    }
+
+    final ultimo = query.docs.first.data()["numeroOrden"] ?? "0000";
+
+    //convierte a int (maneja casos donde no es número)
+    int num = int.tryParse(ultimo) ?? 0;
+    num++;
+
+    //retorna con ceros a la izquierda (4 dígitos)
+    return num.toString().padLeft(4, "0");
+  }
+
+  /*Future<void> enviarVoucher() async {
     if (!_formKey.currentState!.validate()) return;
 
     String pdfError = AppLocalizations.of(context)!.pdfError;
@@ -153,19 +177,20 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
         SnackBar(content: Text("$pdfError $e")),
       );
     }
-  }
+  }*/
 
-  InputDecoration modernInput(String label,
-      {Color? fillColor, Color? borderColor}) {
+  InputDecoration modernInput(
+    String label, {
+    Color? fillColor,
+    Color? borderColor,
+  }) {
     final cs = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText: label,
       filled: true,
       fillColor: fillColor ?? cs.surface,
       labelStyle: TextStyle(fontWeight: FontWeight.w500, color: cs.primary),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: borderColor ?? cs.secondary, width: 2),
@@ -173,8 +198,12 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
     );
   }
 
-  Widget fechaTile(String label, DateTime? fecha, VoidCallback onTap,
-      {bool allowClear = false}) {
+  Widget fechaTile(
+    String label,
+    DateTime? fecha,
+    VoidCallback onTap, {
+    bool allowClear = false,
+  }) {
     final cs = Theme.of(context).colorScheme;
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -224,9 +253,10 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               Text(
                 AppLocalizations.of(context)!.voucherData,
                 style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: cs.primary),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
               ),
               Container(
                 height: 3,
@@ -234,14 +264,19 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                 margin: const EdgeInsets.only(top: 4, bottom: 20),
                 color: cs.secondary,
               ),
-              Text("ID: $idVoucher",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: cs.primary)),
+              Text(
+                "ID: $idVoucher",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: numeroOrdenController,
-                decoration:
-                    modernInput(AppLocalizations.of(context)!.orderNumber),
+                decoration: modernInput(
+                  AppLocalizations.of(context)!.orderNumber,
+                ),
                 maxLength: 4,
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -257,8 +292,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: nombreController,
-                decoration:
-                    modernInput(AppLocalizations.of(context)!.clientName),
+                decoration: modernInput(
+                  AppLocalizations.of(context)!.clientName,
+                ),
                 validator: (value) => value!.isEmpty
                     ? AppLocalizations.of(context)!.clientName
                     : null,
@@ -267,8 +303,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               TextFormField(
                 controller: telefonoController,
                 keyboardType: TextInputType.phone,
-                decoration:
-                    modernInput(AppLocalizations.of(context)!.clientPhone),
+                decoration: modernInput(
+                  AppLocalizations.of(context)!.clientPhone,
+                ),
                 validator: (value) => value!.isEmpty
                     ? AppLocalizations.of(context)!.enterPhone
                     : null,
@@ -277,8 +314,9 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
               TextFormField(
                 controller: descripcionController,
                 maxLines: 3,
-                decoration:
-                    modernInput(AppLocalizations.of(context)!.description),
+                decoration: modernInput(
+                  AppLocalizations.of(context)!.description,
+                ),
                 validator: (value) => value!.isEmpty
                     ? AppLocalizations.of(context)!.enterDescription
                     : null,
@@ -348,12 +386,16 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(AppLocalizations.of(context)!.saveVoucher,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
+                child: Text(
+                  AppLocalizations.of(context)!.saveVoucher,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
+              /*ElevatedButton.icon(
                 onPressed: enviarVoucher,
                 icon: Icon(Icons.share, color: cs.onSecondary),
                 label: Text(AppLocalizations.of(context)!.send,
@@ -365,7 +407,7 @@ class _EmitirVoucherScreenState extends State<EmitirVoucherScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

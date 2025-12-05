@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:service_app/models/voucher.dart';
 import 'package:service_app/providers/App_Data.dart';
 import 'package:provider/provider.dart';
+import 'package:service_app/services/pdf_service.dart';
+import 'package:service_app/services/share_service.dart';
 
 class VoucherScreen extends StatefulWidget {
   const VoucherScreen({super.key});
@@ -37,11 +39,42 @@ class _VoucherScreenState extends State<VoucherScreen> {
     final clPhone = cleanPhone.startsWith("56") ? cleanPhone : "56$cleanPhone";
 
     final url = Uri.parse(
-        "https://wa.me/$clPhone?text=${Uri.encodeComponent(mensaje)}");
+      "https://wa.me/$clPhone?text=${Uri.encodeComponent(mensaje)}",
+    );
 
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.whatsappError)),
+      );
+    }
+  }
+
+  Future<void> compartirPdf(Voucher voucher) async {
+    final ctx = context;
+    try {
+      final pdfBytes = await PdfService.generateVoucherPdf({
+        "id": voucher.id,
+        "numeroOrden": voucher.numeroOrden,
+        "nombreCliente": voucher.nombreCliente,
+        "telefonoCliente": voucher.telefonoCliente,
+        "description": voucher.description,
+        "emisor": voucher.emisor,
+        "fechaEmision": voucher.fechaEmision,
+        "fechaEntrega": voucher.fechaEntrega,
+        "modelo": voucher.modelo,
+        "servicio": voucher.servicio,
+        "total": voucher.total,
+      });
+
+      final filePath = await ShareService.savePdfTemp(
+        pdfBytes,
+        "voucher_${voucher.id}.pdf",
+      );
+
+      await ShareService.sharePdf(filePath);
+    } catch (e) {
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(content: Text("${AppLocalizations.of(ctx)!.pdfError} $e")),
       );
     }
   }
@@ -153,15 +186,18 @@ class _VoucherScreenState extends State<VoucherScreen> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text("$client $cliente",
-                              style:
-                                  TextStyle(fontSize: 16, color: cs.onSurface)),
-                          Text("$model $modelo",
-                              style:
-                                  TextStyle(fontSize: 16, color: cs.onSurface)),
-                          Text("$service $servicio",
-                              style:
-                                  TextStyle(fontSize: 16, color: cs.outline)),
+                          Text(
+                            "$client $cliente",
+                            style: TextStyle(fontSize: 16, color: cs.onSurface),
+                          ),
+                          Text(
+                            "$model $modelo",
+                            style: TextStyle(fontSize: 16, color: cs.onSurface),
+                          ),
+                          Text(
+                            "$service $servicio",
+                            style: TextStyle(fontSize: 16, color: cs.outline),
+                          ),
 
                           // Expansión
                           if (expanded) ...[
@@ -170,22 +206,46 @@ class _VoucherScreenState extends State<VoucherScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.send,
-                                      color: cs.secondary, size: 28),
+                                  icon: Icon(
+                                    Icons.send,
+                                    color: cs.secondary,
+                                    size: 28,
+                                  ),
                                   onPressed: () {
-                                    final mensaje = servicio ==
-                                            AppLocalizations.of(context)!
-                                                .repairMessage
+                                    final mensaje =
+                                        servicio ==
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.repairMessage
                                         ? mensajeReparacion(
-                                            context, cliente, numero)
+                                            context,
+                                            cliente,
+                                            numero,
+                                          )
                                         : mensajeReserva(
-                                            context, cliente, numero);
+                                            context,
+                                            cliente,
+                                            numero,
+                                          );
                                     enviarMensajeWhatsapp(telefono, mensaje);
                                   },
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.edit,
-                                      color: cs.primary, size: 28),
+                                  icon: Icon(
+                                    Icons.share,
+                                    color: cs.primary,
+                                    size: 28,
+                                  ),
+                                  onPressed: () {
+                                    compartirPdf(voucher);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: cs.primary,
+                                    size: 28,
+                                  ),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -197,8 +257,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                   },
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.delete,
-                                      color: cs.error, size: 28),
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: cs.error,
+                                    size: 28,
+                                  ),
                                   onPressed: () async {
                                     await FirebaseFirestore.instance
                                         .collection("vouchers")
@@ -208,7 +271,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                 ),
                               ],
                             ),
-                          ]
+                          ],
                         ],
                       ),
                     ),
