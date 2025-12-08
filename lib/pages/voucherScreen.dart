@@ -20,6 +20,10 @@ class VoucherScreen extends StatefulWidget {
 class _VoucherScreenState extends State<VoucherScreen> {
   String? expandedId;
 
+  DateTime? fechaInicio;
+  DateTime? fechaFin;
+  String estadoSeleccionado = "Todos";
+
   String mensajeReparacion(BuildContext context, String nombre, String orden) {
     final appData = Provider.of<AppData>(context, listen: false);
     return appData.mensajeReparacion
@@ -87,6 +91,36 @@ class _VoucherScreenState extends State<VoucherScreen> {
     String model = AppLocalizations.of(context)!.model;
     String service = AppLocalizations.of(context)!.service;
 
+    Query vouchersQuery = FirebaseFirestore.instance
+        .collection("vouchers")
+        .orderBy("fechaEmision", descending: true);
+
+    // Filtro por estado
+    if (estadoSeleccionado != "Todos") {
+      vouchersQuery =
+          vouchersQuery.where("estado", isEqualTo: estadoSeleccionado);
+    }
+
+    // Filtro por rango de fechas
+    if (fechaInicio != null) {
+      vouchersQuery = vouchersQuery.where(
+        "fechaEmision",
+        isGreaterThanOrEqualTo: Timestamp.fromDate(
+          DateTime(fechaInicio!.year, fechaInicio!.month, fechaInicio!.day),
+        ),
+      );
+    }
+
+    if (fechaFin != null) {
+      print(fechaFin);
+      vouchersQuery = vouchersQuery.where(
+        "fechaEntrega",
+        isLessThanOrEqualTo: Timestamp.fromDate(
+          DateTime(fechaFin!.year, fechaFin!.month, fechaFin!.day, 23, 59, 59),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: cs.background,
       appBar: AppBar(
@@ -106,12 +140,96 @@ class _VoucherScreenState extends State<VoucherScreen> {
           );
         },
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text("Filtros",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                )),
+            const SizedBox(height: 20),
+            const Text("Estado", style: TextStyle(fontSize: 18)),
+            DropdownButton<String>(
+              isExpanded: true,
+              value: estadoSeleccionado,
+              items: ["Todos", "Pendiente", "En proceso", "Finalizada"]
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() => estadoSeleccionado = value!);
+              },
+            ),
+            const SizedBox(height: 20),
+            const Text("Fecha inicio", style: TextStyle(fontSize: 18)),
+            TextButton(
+              onPressed: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: fechaInicio ?? DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) setState(() => fechaInicio = picked);
+              },
+              child: Text(
+                fechaInicio == null
+                    ? "Seleccionar fecha"
+                    : fechaInicio.toString().split(" ").first,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text("Fecha fin", style: TextStyle(fontSize: 18)),
+            TextButton(
+              onPressed: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: fechaFin ?? DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) setState(() => fechaFin = picked);
+              },
+              child: Text(
+                fechaFin == null
+                    ? "Seleccionar fecha"
+                    : fechaFin.toString().split(" ").first,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {});
+              },
+              child: const Text("Aplicar filtros"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Future.microtask(() {
+                  setState(() {
+                    fechaInicio = null;
+                    fechaFin = null;
+                    estadoSeleccionado = "Todos";
+                  });
+                });
+              },
+              child: const Text("Limpiar filtros"),
+            ),
+          ],
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection("vouchers")
-            .orderBy("fechaEmision", descending: true)
-            .snapshots(),
+        stream: vouchersQuery.snapshots(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print(snapshot.error);
+            return Center(
+              child: Text("Error: ${snapshot.error}"),
+            );
+          }
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator(color: cs.primary));
           }
@@ -141,6 +259,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
               final servicio = data["servicio"] ?? "Sin servicio";
 
               final bool expanded = expandedId == id;
+              print("====== DOCUMENTO RAW ======");
+              print(data);
+              print(
+                  "TIPO nombreCliente -> ${data['nombreCliente']?.runtimeType}");
+
               final voucher = Voucher.fromMap({...data, "id": id});
 
               return AnimatedContainer(
@@ -212,11 +335,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
                                     size: 28,
                                   ),
                                   onPressed: () {
-                                    final mensaje =
-                                        servicio ==
+                                    final mensaje = servicio ==
                                             AppLocalizations.of(
                                               context,
-                                            )!.repairMessage
+                                            )!
+                                                .repairMessage
                                         ? mensajeReparacion(
                                             context,
                                             cliente,

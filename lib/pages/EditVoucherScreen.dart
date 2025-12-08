@@ -25,6 +25,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
 
   String modeloSeleccionado = "Otro";
   String servicioSeleccionado = "Reparación";
+  String estadoSeleccionado = "Pendiente";
 
   bool saving = false;
 
@@ -48,6 +49,7 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
 
     modeloSeleccionado = widget.voucher.modelo;
     servicioSeleccionado = widget.voucher.servicio;
+    estadoSeleccionado = widget.voucher.estado;
   }
 
   Future<void> guardarCambios() async {
@@ -66,9 +68,10 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
         "emisor": emisorController.text.trim(),
         "modelo": modeloSeleccionado,
         "servicio": servicioSeleccionado,
-        "fechaEmision": fechaEmision.toIso8601String(),
-        "fechaEntrega": fechaEntrega.toIso8601String(),
+        "fechaEmision": Timestamp.fromDate(fechaEmision),
+        "fechaEntrega": Timestamp.fromDate(fechaEntrega),
         "total": int.tryParse(totalController.text.trim()) ?? 0,
+        "estado": estadoSeleccionado,
       });
 
       if (!mounted) return;
@@ -226,6 +229,12 @@ class _EditVoucherScreenState extends State<EditVoucherScreen> {
                     servicioSeleccionado,
                     Voucher.serviciosDisponibles,
                     (v) => setState(() => servicioSeleccionado = v),
+                  ),
+                  dropdownField(
+                    "Estado",
+                    estadoSeleccionado,
+                    ["Pendiente", "En proceso", "Finalizada"],
+                    (v) => setState(() => estadoSeleccionado = v),
                   ),
                   ListTile(
                     shape: RoundedRectangleBorder(
