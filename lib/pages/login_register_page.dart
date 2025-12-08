@@ -91,22 +91,26 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
           preferredSize: const Size.fromHeight(48),
           child: Column(
             children: [
-              TabBar(
-                controller: tabController,
-                labelColor: cs.onPrimary,
-                unselectedLabelColor: cs.onPrimary.withOpacity(0.7),
-                indicator: BoxDecoration(
-                  color: cs.secondary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                tabs: [
-                  Tab(text: AppLocalizations.of(context)!.signIn),
-                  Tab(text: AppLocalizations.of(context)!.register),
-                ],
-              ),
               Container(
-                height: 2,
-                color: cs.secondary,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: cs.primary.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TabBar(
+                  controller: tabController,
+                  labelColor: cs.onPrimary,
+                  indicatorPadding: const EdgeInsets.symmetric(horizontal: -10),
+                  unselectedLabelColor: cs.onPrimary.withOpacity(0.7),
+                  indicator: BoxDecoration(
+                    color: cs.secondary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.signIn),
+                    Tab(text: AppLocalizations.of(context)!.register),
+                  ],
+                ),
               ),
             ],
           ),
