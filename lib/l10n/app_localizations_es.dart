@@ -244,5 +244,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get closeSession => 'Cerrar sesión';
 
   @override
-  String get hi => 'Hola';
+  String get filters => 'Filtros';
+
+  @override
+  String get all => 'Todos';
+
+  @override
+  String get pending => 'Pendiente';
+
+  @override
+  String get inProgress => 'En proceso';
+
+  @override
+  String get finished => 'Finalizado';
+
+  @override
+  String get startDate => 'Fecha inicio';
+
+  @override
+  String get selectDate => 'Seleccionar fecha';
+
+  @override
+  String get endDate => 'Fecha fin';
+
+  @override
+  String get applyFilters => 'Aplicar filtros';
+
+  @override
+  String get cleanFilters => 'Limpiar filtros';
 }

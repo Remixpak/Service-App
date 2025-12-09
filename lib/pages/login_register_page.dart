@@ -88,31 +88,50 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
 
         // Línea debajo del AppBar igual que en Home
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: cs.primary.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TabBar(
-                  controller: tabController,
-                  labelColor: cs.onPrimary,
-                  indicatorPadding: const EdgeInsets.symmetric(horizontal: -10),
-                  unselectedLabelColor: cs.onPrimary.withOpacity(0.7),
-                  indicator: BoxDecoration(
-                    color: cs.secondary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  tabs: [
-                    Tab(text: AppLocalizations.of(context)!.signIn),
-                    Tab(text: AppLocalizations.of(context)!.register),
-                  ],
-                ),
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: cs.primary.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
               ),
-            ],
+              child: TabBar(
+                controller: tabController,
+                labelColor: cs.onPrimary,
+                unselectedLabelColor: cs.onPrimary,
+                indicator: BoxDecoration(
+                  color: cs.secondary.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                labelPadding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                indicatorPadding: EdgeInsets.zero,
+                tabs: [
+                  Tab(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        AppLocalizations.of(context)!.signIn,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  Tab(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        AppLocalizations.of(context)!.register,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

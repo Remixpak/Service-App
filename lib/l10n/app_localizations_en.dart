@@ -244,5 +244,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeSession => 'Log Out';
 
   @override
-  String get hi => 'Hi';
+  String get filters => 'Filters';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get inProgress => 'In progress';
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String get endDate => 'End date';
+
+  @override
+  String get applyFilters => 'Apply filters';
+
+  @override
+  String get cleanFilters => 'Clean filters';
 }

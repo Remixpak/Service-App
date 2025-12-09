@@ -144,25 +144,30 @@ class _VoucherScreenState extends State<VoucherScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text("Filtros",
+            Text(AppLocalizations.of(context)!.filters,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 )),
             const SizedBox(height: 20),
-            const Text("Estado", style: TextStyle(fontSize: 18)),
+            Text(AppLocalizations.of(context)!.state,
+                style: TextStyle(fontSize: 18)),
             DropdownButton<String>(
               isExpanded: true,
               value: estadoSeleccionado,
-              items: ["Todos", "Pendiente", "En proceso", "Finalizada"]
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
+              items: [
+                "Todos",
+                "Pendiente",
+                "En proceso",
+                "Finalizado",
+              ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (value) {
                 setState(() => estadoSeleccionado = value!);
               },
             ),
             const SizedBox(height: 20),
-            const Text("Fecha inicio", style: TextStyle(fontSize: 18)),
+            Text(AppLocalizations.of(context)!.startDate,
+                style: TextStyle(fontSize: 18)),
             TextButton(
               onPressed: () async {
                 final picked = await showDatePicker(
@@ -175,12 +180,13 @@ class _VoucherScreenState extends State<VoucherScreen> {
               },
               child: Text(
                 fechaInicio == null
-                    ? "Seleccionar fecha"
+                    ? AppLocalizations.of(context)!.selectDate
                     : fechaInicio.toString().split(" ").first,
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Fecha fin", style: TextStyle(fontSize: 18)),
+            Text(AppLocalizations.of(context)!.endDate,
+                style: TextStyle(fontSize: 18)),
             TextButton(
               onPressed: () async {
                 final picked = await showDatePicker(
@@ -193,7 +199,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
               },
               child: Text(
                 fechaFin == null
-                    ? "Seleccionar fecha"
+                    ? AppLocalizations.of(context)!.selectDate
                     : fechaFin.toString().split(" ").first,
               ),
             ),
@@ -203,7 +209,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
                 Navigator.pop(context);
                 setState(() {});
               },
-              child: const Text("Aplicar filtros"),
+              child: Text(AppLocalizations.of(context)!.applyFilters),
             ),
             TextButton(
               onPressed: () {
@@ -212,11 +218,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
                   setState(() {
                     fechaInicio = null;
                     fechaFin = null;
-                    estadoSeleccionado = "Todos";
+                    estadoSeleccionado = AppLocalizations.of(context)!.all;
                   });
                 });
               },
-              child: const Text("Limpiar filtros"),
+              child: Text(AppLocalizations.of(context)!.cleanFilters),
             ),
           ],
         ),

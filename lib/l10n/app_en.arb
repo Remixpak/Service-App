@@ -78,5 +78,14 @@
     "currentUser": "Current User: ",
     "closedAccount": "Session successfully closed",
     "closeSession": "Log Out",
-    "hi": "Hi"
+    "filters": "Filters",
+    "all": "All",
+    "pending": "Pending",
+    "inProgress": "In progress",
+    "finished": "Finished",
+    "startDate": "Start date",
+    "selectDate": "Select date",
+    "endDate": "End date",
+    "applyFilters": "Apply filters",
+    "cleanFilters": "Clean filters"
 }

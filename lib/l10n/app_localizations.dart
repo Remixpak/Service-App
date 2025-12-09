@@ -566,11 +566,65 @@ abstract class AppLocalizations {
   /// **'Cerrar sesión'**
   String get closeSession;
 
-  /// No description provided for @hi.
+  /// No description provided for @filters.
   ///
   /// In es, this message translates to:
-  /// **'Hola'**
-  String get hi;
+  /// **'Filtros'**
+  String get filters;
+
+  /// No description provided for @all.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get all;
+
+  /// No description provided for @pending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente'**
+  String get pending;
+
+  /// No description provided for @inProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'En proceso'**
+  String get inProgress;
+
+  /// No description provided for @finished.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizado'**
+  String get finished;
+
+  /// No description provided for @startDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha inicio'**
+  String get startDate;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fecha'**
+  String get selectDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha fin'**
+  String get endDate;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicar filtros'**
+  String get applyFilters;
+
+  /// No description provided for @cleanFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar filtros'**
+  String get cleanFilters;
 }
 
 class _AppLocalizationsDelegate
