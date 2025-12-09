@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:service_app/l10n/app_localizations.dart';
 import 'dart:io';
 import '../services/pdf_service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import '../services/connection_service.dart';
+import '../../models/voucher.dart';
 
 class Consultarvoucher extends StatefulWidget {
   const Consultarvoucher({super.key});
@@ -14,35 +16,27 @@ class Consultarvoucher extends StatefulWidget {
 }
 
 class _ConsultarvoucherState extends State<Consultarvoucher> {
-  final TextEditingController idController = TextEditingController();
+  final TextEditingController ordenController = TextEditingController();
 
-  Map<String, dynamic>? voucherData;
+  Voucher? voucher;
   bool loading = false;
   String? errorMessage;
 
-  Future<bool> hasConnection() async {
-    final result = await Connectivity().checkConnectivity();
-    return result != ConnectivityResult.none;
-  }
-
-  //Buscar voucher en Firestore
   Future<void> buscarVoucher() async {
-    final id = idController.text.trim();
+    final numeroOrden = ordenController.text.trim();
 
-    if (id.isEmpty) {
+    if (numeroOrden.isEmpty) {
       setState(() {
-        errorMessage = "Debe ingresar un ID";
-        voucherData = null;
+        errorMessage = AppLocalizations.of(context)!.enterOrderNumber;
+        voucher = null;
       });
       return;
     }
 
-    final connected = await hasConnection();
-    if (!connected) {
+    final online = await ConnectionService().checkOnline();
+    if (!online) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No hay conexión a Internet. Intenta nuevamente."),
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context)!.internetError)),
       );
       return;
     }
@@ -53,145 +47,208 @@ class _ConsultarvoucherState extends State<Consultarvoucher> {
     });
 
     try {
-      final doc = await FirebaseFirestore.instance
+      final query = await FirebaseFirestore.instance
           .collection("vouchers")
-          .doc(id)
+          .where("numeroOrden", isEqualTo: numeroOrden)
           .get();
 
-      if (doc.exists) {
+      if (query.docs.isEmpty) {
         setState(() {
-          voucherData = doc.data();
-          errorMessage = null;
+          voucher = null;
+          errorMessage = AppLocalizations.of(context)!.orderError;
         });
       } else {
         setState(() {
-          voucherData = null;
-          errorMessage = "No existe un voucher con ese ID";
+          voucher = Voucher.fromMap(query.docs.first.data());
         });
       }
     } catch (e) {
       setState(() {
-        voucherData = null;
-        errorMessage = "Error al consultar: $e";
+        errorMessage = "${AppLocalizations.of(context)!.searchError} $e";
+        voucher = null;
       });
     }
 
-    setState(() {
-      loading = false;
-    });
+    setState(() => loading = false);
+  }
+
+  String formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
+  InputDecoration inputDecoration(String label) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: cs.background,
+      labelStyle: TextStyle(color: cs.onBackground.withOpacity(0.8)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary, width: 2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.secondary, width: 2),
+      ),
+      suffixIconColor: cs.secondary,
+    );
+  }
+
+  ButtonStyle elevatedButtonStyle() {
+    final cs = Theme.of(context).colorScheme;
+    return ElevatedButton.styleFrom(
+      backgroundColor: cs.background,
+      foregroundColor: cs.secondary,
+      side: BorderSide(color: cs.secondary, width: 2),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Consultar Voucher'),
+    final cs = Theme.of(context).colorScheme;
 
+    return Scaffold(
+      backgroundColor: cs.background,
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.queryVoucher),
+        centerTitle: true,
+        backgroundColor: cs.inversePrimary,
+        foregroundColor: cs.onInverseSurface,
+        elevation: 1,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: cs.secondary,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            onPressed: () async {
-              if (voucherData == null) return;
+            onPressed: voucher == null
+                ? null
+                : () async {
+                    final pdfBytes =
+                        await PdfService.generateVoucherPdf(voucher!.toMap());
+                    await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
 
-              // 1. Generar el PDF
-              final pdfBytes = await PdfService.generateVoucherPdf(
-                voucherData!,
-              );
+                    final dir = await getApplicationDocumentsDirectory();
+                    final file =
+                        File("${dir.path}/voucher_${voucher!.numeroOrden}.pdf");
+                    await file.writeAsBytes(pdfBytes);
 
-              // 2. Mostrar previsualización
-              await Printing.layoutPdf(onLayout: (_) async => pdfBytes);
-
-              // 3. Guardar archivo en Documentos
-              final dir = await getApplicationDocumentsDirectory();
-              final file = File("${dir.path}/voucher_${idController.text}.pdf");
-
-              await file.writeAsBytes(pdfBytes);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("PDF guardado en Documentos"),
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            },
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text(AppLocalizations.of(context)!.pdfSaved)),
+                    );
+                  },
           ),
         ],
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            /// Campo para ingresar ID
             TextField(
-              controller: idController,
-              decoration: InputDecoration(
-                labelText: "ID del voucher",
-                border: OutlineInputBorder(),
+              controller: ordenController,
+              decoration: inputDecoration(
+                AppLocalizations.of(context)!.orderNumber,
+              ).copyWith(
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: buscarVoucher,
                 ),
               ),
+              keyboardType: TextInputType.number,
             ),
-
             const SizedBox(height: 20),
-
-            /// Botón Buscar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: buscarVoucher,
-                child: const Text("Buscar"),
+                style: elevatedButtonStyle(),
+                child: Text(AppLocalizations.of(context)!.search),
               ),
             ),
-
             const SizedBox(height: 20),
-
-            /// Cargando
-            if (loading) const CircularProgressIndicator(),
-
-            /// Error
+            if (loading) CircularProgressIndicator(color: cs.secondary),
             if (errorMessage != null)
               Text(
                 errorMessage!,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
+                style: TextStyle(
+                  color: cs.secondary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-
-            /// Mostrar datos del voucher
-            if (voucherData != null)
+            if (voucher != null)
               Expanded(
                 child: ListView(
                   children: [
                     Text(
-                      "📄 Datos del Voucher",
-                      style: const TextStyle(
+                      AppLocalizations.of(context)!.voucherData,
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: cs.secondary,
                       ),
                     ),
                     const SizedBox(height: 10),
-
-                    ...voucherData!.entries.map(
-                      (e) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            "${e.key}: ${e.value}",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
+                    ...[
+                      buildItem("ID", voucher!.id),
+                      buildItem("Número de orden", voucher!.numeroOrden),
+                      buildItem("Cliente", voucher!.nombreCliente),
+                      buildItem("Teléfono", voucher!.telefonoCliente),
+                      buildItem("Descripción", voucher!.description),
+                      buildItem("Modelo", voucher!.modelo),
+                      buildItem("Servicio", voucher!.servicio),
+                      buildItem("Emisor", voucher!.emisor),
+                      buildItem(
+                          "Fecha emisión", formatDate(voucher!.fechaEmision)),
+                      buildItem(
+                          "Fecha entrega", formatDate(voucher!.fechaEntrega)),
+                      buildItem("Total", "\$${voucher!.total}"),
+                    ],
                   ],
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildItem(String label, String value) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cs.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.secondary, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            )
+          ],
+        ),
+        child: Text(
+          "$label: $value",
+          style: TextStyle(
+            fontSize: 16,
+            color: cs.onBackground,
+          ),
         ),
       ),
     );
