@@ -19,7 +19,7 @@ Service App es una aplicación Cross-Platform que ofrece un servicio de consulta
 - Los ID de los comprobantes deben ser unicos
 - Aquellos usuarios administradores pueden asignar el rol a otros usuarios registrados
 ## APK
-app-release.rar
+[app-release.rar](https://github.com/Remixpak/Service-App/blob/main/app-release.rar)
 
 
 
